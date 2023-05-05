@@ -2,11 +2,11 @@
 
 1. 테스트 영상 <https://youtu.be/mrMN-qOmRcc>
 
-2. 프론트: html, css, js
-3. 서버: php (composer 패키지 관리자, vlucas/phpdotenv 라이브러리)
-4. 디비: mariaDB
+2. 프론트: HTML, CSS, JS
+3. 서버: PHP (composer 패키지 관리자, vlucas/phpdotenv 라이브러리)
+4. 디비: mariadDB
 
-5. 개발 환경: Windows 10 pro, VS Code, Vivaldi Browser, XAMPP 8.1.2
+5. 개발 환경: Windows 10 pro, VS Code, Vivaldi Browser, Chrome Browser, XAMPP 8.1.2
 
 6. 데이터베이스
 
