@@ -1,8 +1,20 @@
 ## 채팅 애플리케이션
 
+0. 사이트 사용법
+
+<pre>
+2개의 브라우저를 열어서 예를 들어 Edge 브라우저와, Chrome 브라우저를 열고 https://chosangho.site/
+사이트에 들어가서 각자 다른 이름으로 회원 가입을 하면 로그인 처리가 되고 대화 상대방을 선택해서
+채팅을 하면 서로 이야기가 가능
+</pre>
+
 1. 테스트 영상
 
 - <https://youtu.be/mrMN-qOmRcc>
+
+2. 사이트
+
+- <https://chosangho.site/>
 
 2. 프론트
 
@@ -18,21 +30,35 @@
 
 5. 개발 환경
 
-- Windows 10 pro <br>
-- VSCode <br>
-- Vivaldi Browser <br>
-- Chrome Browser <br>
+- Windows 10 pro
+- VSCode 1.78.0
+- Vivaldi Browser 6.0.2979.18
+- Chrome Browser 112.0.5615.138
 - XAMPP 8.1.2
+- MobaXterm v23.0
+- WinScp 5.21.7
 
-6. 데이터베이스
+6. 도메인
+
+- GoDaddy (chosangho.site 구매)
+
+7. 서버 호스팅
+
+- aws EC2 (Ubuntu 20.04.6) 사용
+- lampp 7.4.29 설치
+- route 53 - 고대디에서 구매한 도메인 연결
+- Certificate Manager https 인증서
+- 로드 밸런서 사용(https 적용)
+
+8. 데이터베이스
 
    ![데이터베이스 테이블](screenshot/databaseTable.png)
 
-7. 실행 장면
+9. 실행 장면
 
    ![실행 장면](screenshot/play.gif)
 
-8. 프로젝트 구조
+10. 프로젝트 구조
 
 ```
 chatting
