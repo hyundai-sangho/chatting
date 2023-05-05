@@ -1,12 +1,22 @@
 ## 채팅 애플리케이션
 
-1. 테스트 영상 <https://youtu.be/mrMN-qOmRcc>
+1. 테스트 영상
+   <https://youtu.be/mrMN-qOmRcc>
 
-2. 프론트: HTML, CSS, JS
-3. 서버: PHP (composer 패키지 관리자, vlucas/phpdotenv 라이브러리)
-4. 디비: mariadDB
+2. 프론트
+   HTML, CSS, JS
+3. 서버
+   PHP (composer 패키지 관리자, vlucas/phpdotenv 라이브러리)
+4. 디비
+   MariaDB
 
-5. 개발 환경: Windows 10 pro, VS Code, Vivaldi Browser, Chrome Browser, XAMPP 8.1.2
+5. 개발 환경
+
+- Windows 10 pro <br>
+- VSCode <br>
+- Vivaldi Browser <br>
+- Chrome Browser <br>
+- XAMPP 8.1.2
 
 6. 데이터베이스
 
