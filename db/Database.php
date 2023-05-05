@@ -1,7 +1,7 @@
 <?php
 
 /* php dotenv 사용을 위해 vendor 폴더 내부의 autoload.php require 함. */
-require_once "$_SERVER[DOCUMENT_ROOT]/chatting/vendor/autoload.php";
+require_once "$_SERVER[DOCUMENT_ROOT]/vendor/autoload.php";
 
 /* php dotenv 사용법 */
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
