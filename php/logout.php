@@ -24,11 +24,11 @@ if (isset($_SESSION['unique_id'])) {
     $database->connectionClose();
 
     // 로그아웃이 되버렸기에 로그인 페이지로 이동시킴.
-    header("Location: http://localhost/chatting/login.php");
+    header("Location: ../login.php");
   }
 } else {
   // 세션이 없는 상태에서 로그아웃 페이지에 들어왔다면 로그인 페이지로 이동시킴.
-  header("Location: http://localhost/chatting/login.php");
+  header("Location: ../login.php");
 }
 
 
