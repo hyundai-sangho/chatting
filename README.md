@@ -1,14 +1,20 @@
 ## 채팅 애플리케이션
 
 1. 테스트 영상
-   <https://youtu.be/mrMN-qOmRcc>
+
+- <https://youtu.be/mrMN-qOmRcc>
 
 2. 프론트
-   HTML, CSS, JS
+
+- HTML, CSS, JS
+
 3. 서버
-   PHP (composer 패키지 관리자, vlucas/phpdotenv 라이브러리)
+
+- PHP (composer 패키지 관리자, vlucas/phpdotenv 라이브러리)
+
 4. 디비
-   MariaDB
+
+- MariaDB
 
 5. 개발 환경
 
