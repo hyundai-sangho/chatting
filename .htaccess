@@ -1,0 +1,6 @@
+RewriteEngine On
+
+# URL을 views/ 폴더로 보냄
+RewriteRule "^login.php$" "views/login.php"
+RewriteRule "^chat.php$" "views/chat.php"
+RewriteRule "^users.php$" "views/users.php"

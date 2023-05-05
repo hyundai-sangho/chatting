@@ -1,0 +1,8 @@
+# 개발시에 사용한 Live Server Port 번호 및 스펠 체커가 예외 처리한 단어라 실제 사용시에는 없어도 되는 파일
+.vscode
+
+# composer install 설치가 가능하므로 빼버림(용량 많이 차지하고 무거움)
+vendor
+
+# DB 연관 환경변수
+.env
