@@ -1,6 +1,6 @@
 ## 채팅 애플리케이션
 
-1. <https://www.youtube.com/watch?v=VnvzxGWiK54&t=3s>
+1. 테스트 영상 <https://youtu.be/mrMN-qOmRcc>
 
 2. 프론트: html, css, js
 3. 서버: php (composer 패키지 관리자, vlucas/phpdotenv 라이브러리)
@@ -8,16 +8,22 @@
 
 5. 개발 환경: Windows 10 pro, VS Code, Vivaldi Browser, XAMPP 8.1.2
 
-6. 데이터베이스 테이블
+6. 데이터베이스
+
    ![데이터베이스 테이블](screenshot/databaseTable.png)
 
-7. 프로젝트 구조
+7. 실행 장면
+
+   ![실행 장면](screenshot/play.gif)
+
+8. 프로젝트 구조
 
 ```
 chatting
 ├─ .gitignore                 => 깃으로 버전 관리시 필요 없는 데이터는 따로 기록 관리
 ├─ assets                     => css, js, img 파일들을 관리
-├─ .htaccess                  => /login.php, /chat.php, /users.php로 들어오는 url을 /views/login.php, /views/chat.php, /views/users.php로 보내버림
+├─ .htaccess                  => /login.php, /chat.php, /users.php로 들어오는 url을
+│                                /views/login.php, /views/chat.php, /views/users.php로 보내버림
 ├─ assets                     => css, js, img 파일 묶음 폴더
 │  ├─ css
 │  │  └─ style.css            => index.php, user.php, login.php, chat.php의 내부 css 파일 하나로 관리(파일 분리 필요)
@@ -25,11 +31,13 @@ chatting
 │  └─ js
 │     ├─ chat.js              => chat.php의 채팅 화면에서 발생하는 자바스크립트 동작(비동기로 채팅 데이터 받아오기)
 │     ├─ login.js             => login.php의 로그인 화면에서 발생하는 자바스크립트 동작(비동기로 로그인 작업 실행)
-│     ├─ pass-show-hide.js    => index.php, login.php의 비밀번호 입력 창에서 눈알 아이콘을 눌렀을시 발생하는 동작(비밀번호 속성을 text, password로 토글)
+│     ├─ pass-show-hide.js    => index.php, login.php의 비밀번호 입력 창에서 눈알 아이콘을 눌렀을시 발생하는 동작
+│     │                          (비밀번호 속성을 text, password로 토글)
 │     ├─ signup.js            => index.php의 회원가입 버튼을 클릭시에 발생하는 동작
 │     └─ users.js             => users.php에서 채팅할 상대를 검색하는 동작
 ├─ composer.json              => 프로젝트에 사용한 vlucas/phpdotenv 라이브러리 정리
-├─ composer.lock              => composer install시 생기는 파일로 composer.json에 기록된 라이브러리와 연관된 항목과 버전이 기술됨
+├─ composer.lock              => composer install시 생기는 파일로 composer.json에 기록된
+│                                라이브러리와 연관된 항목과 버전이 기술됨
 ├─ db
 │  └─ Database.php
 ├─ index.php
