@@ -1,3 +1,6 @@
+/* 태그에 기본적으로 들어가 있는 마진, 패딩을 0 으로 설정
+box-sizing은 border-box로 테두리를 기준으로 크기를 설정
+글씨에 밑줄이 들어가는 등의 text-decoration을 제거*/
 * {
 	margin: 0;
 	padding: 0;
@@ -5,6 +8,11 @@
 	text-decoration: none;
 }
 
+/* body 태그
+display는 flex
+가로, 세로 가운데 정렬
+min height는 현재 화면 세로 크기 기준
+*/
 body {
 	display: flex;
 	align-items: center;
@@ -13,6 +21,7 @@ body {
 	background: #f7f7f7;
 }
 
+/* index.php, chat.php, edit-profile.php, login.php, users.php의 body 태그 내부의 div 박스의 클래스 wrapper*/
 .wrapper {
 	background: #fff;
 	width: 450px;
@@ -20,7 +29,7 @@ body {
 	box-shadow: 0 0 128px 0 rgba(0, 0, 0, 0.1), 0 32px 64px -48px rgba(0, 0, 0, 0.5);
 }
 
-/* Sign up Form Css code */
+/* index.php, edit-profile.php, login.php의 폼 */
 .form {
 	padding: 25px 30px;
 }
@@ -29,7 +38,7 @@ body {
 	font-size: 25px;
 	font-weight: 600;
 	padding-bottom: 10px;
-	border-bottom: 1px solid #e6e6e6;
+	/* border-bottom: 1px solid #e6e6e6; */
 }
 
 .form form {
@@ -55,10 +64,6 @@ form .name-details .field:first-child {
 	width: 100%;
 }
 
-/* form .name-details .field:last-child {
-	margin-left: 10px;
-} */
-
 .form form .field {
 	display: flex;
 	position: relative;
@@ -83,7 +88,20 @@ form .name-details .field:first-child {
 	border-radius: 5px;
 }
 
-.form from .image input {
+.input-field {
+	outline: none;
+}
+
+.input-field {
+	width: 100%;
+	height: 40px;
+	font-size: 16px;
+	padding: 0 10px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+}
+
+.form form .image input {
 	font-size: 17px;
 }
 
@@ -109,8 +127,12 @@ form .name-details .field:first-child {
 }
 
 .form form .field i.active::before {
-	color: #333;
+	color: red;
 	content: '\f070';
+}
+
+.form form .field i:hover {
+	color: orange;
 }
 
 .form .link {
@@ -318,9 +340,11 @@ form .name-details .field:first-child {
 }
 
 .outgoing .details p {
+	width: 200px;
 	background: #333;
 	color: #fff;
 	border-radius: 18px 18px 0 18px;
+	word-wrap: break-word;
 }
 
 .chat-box .incoming {
@@ -340,9 +364,11 @@ form .name-details .field:first-child {
 }
 
 .incoming .details p {
+	width: 200px;
 	color: #333;
 	background: #fff;
 	border-radius: 18px 18px 18px 0;
+	word-wrap: break-word;
 }
 
 .chat-area .typing-area {
@@ -373,19 +399,45 @@ form .name-details .field:first-child {
 }
 
 /* 로그인 */
-#loginMaintain {
+#loginMaintain,
+#loginStatusMaintain {
 	transition: all 0.2s ease;
+	cursor: pointer;
 }
 
-#loginMaintain:hover {
+#loginMaintain:hover,
+#loginStatusMaintain:hover {
 	color: orangered;
 }
 
-#loginMaintain:active {
+#loginMaintain:active,
+#loginStatusMaintain:active {
 	scale: 0.9;
 }
 
-#loginMaintain.active {
+#loginMaintain.active,
+#loginStatusMaintain.active {
+	color: red;
+}
+
+#passwordFind,
+#passwordFindText {
+	transition: all 0.2s ease;
+	cursor: pointer;
+}
+
+#passwordFind:hover,
+#passwordFindText:hover {
+	color: orangered;
+}
+
+#passwordFind:active,
+#passwordFindText:active {
+	scale: 0.9;
+}
+
+#passwordFind.active,
+#passwordFindText.active {
 	color: red;
 }
 
@@ -396,3 +448,421 @@ form .name-details .field:first-child {
 	width: 50px;
 	height: 50px;
 }
+
+#myMessageCloseIcon {
+	color: orange;
+	position: relative;
+	top: 1px;
+	right: -2px;
+	cursor: pointer;
+}
+
+#myImageCloseIcon {
+	color: orange;
+	position: relative;
+	top: -5px;
+	right: -180px;
+	cursor: pointer;
+}
+
+#myImageCloseIcon:hover {
+	scale: 0.9;
+}
+
+#myImageCloseIcon:active {
+	color: red;
+}
+
+.myImageCloseIcon {
+	transition: all 0.2s ease;
+}
+
+.myImageCloseIcon:hover {
+	scale: 0.9;
+}
+
+.myImageCloseIcon:active {
+	color: red;
+}
+
+.chatPhotoImage:hover {
+	scale: 1.5;
+}
+
+/* users.php */
+/* 햄버거 자식 버튼 */
+.hamburgerChildButton {
+	margin-top: 15px;
+	margin-bottom: 15px;
+	padding: 3px;
+	width: 100%;
+	height: 45px;
+	border: none;
+	font-size: 17px;
+	font-weight: 400;
+	background: #333;
+	color: #fff;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.chattingMessage {
+	min-height: 10%;
+	max-height: 15%;
+}
+
+#emailAuthentication {
+	color: black;
+	cursor: pointer;
+	font-style: normal;
+	transition: all 0.2s ease;
+}
+
+#emailAuthentication:hover {
+	border: 1px solid orange;
+	color: white;
+	background-color: orange;
+	padding: 10px;
+	border-radius: 5px;
+}
+
+#emailAuthenticationTimer {
+	color: black;
+	font-style: normal;
+	cursor: default;
+}
+
+.chatIcon {
+	transition: all 0.2s ease;
+}
+
+.chatIcon:hover {
+	scale: 1.5;
+}
+
+#signupChatIcon {
+	position: relative;
+	width: 35px;
+	top: -245px;
+	left: 420px;
+}
+
+#loginChatIcon {
+	position: relative;
+	width: 35px;
+	top: -151px;
+	left: 420px;
+}
+
+#findPasswordIcon {
+	position: relative;
+	width: 35px;
+	top: -124px;
+	left: 420px;
+}
+
+#editUserChatIcon {
+	position: relative;
+	width: 35px;
+	top: -191px;
+	left: 420px;
+}
+
+#authChatIcon {
+	position: relative;
+	width: 35px;
+	top: -75px;
+	left: 420px;
+}
+
+#verifyPasswordChatIcon {
+	position: relative;
+	width: 35px;
+	top: -75px;
+	left: 420px;
+}
+
+#myImgDiffDay {
+	position: relative;
+	left: 30px;
+	top: 5px;
+	color: red;
+	font-weight: bold;
+}
+
+/* 미디어 쿼리 시작 =========================================================*/
+/* 아이폰 XR - 414 x 896 */
+@media (max-width: 414px) {
+	/* 회원가입 화면 상단 채팅 아이콘 */
+	#signupChatIcon {
+		position: relative;
+		width: 40px;
+		top: -250px;
+		left: 347px;
+	}
+
+	#loginChatIcon {
+		position: relative;
+		width: 35px;
+		top: -151px;
+		left: 352px;
+	}
+
+	#findPasswordIcon {
+		position: relative;
+		width: 35px;
+		top: -124px;
+		left: 350px;
+	}
+	#editUserChatIcon {
+		position: relative;
+		width: 35px;
+		top: -191px;
+		left: 351px;
+	}
+	#authChatIcon {
+		position: relative;
+		width: 35px;
+		top: -74px;
+		left: 350px;
+	}
+	#verifyPasswordChatIcon {
+		position: relative;
+		width: 35px;
+		top: -75px;
+		left: 348px;
+	}
+	#myImageCloseIcon {
+		color: orange;
+		position: relative;
+		top: -5px;
+		right: -139px;
+		cursor: pointer;
+	}
+}
+
+/* 삼성 갤럭시 S20 울트라 - 412 x 915*/
+@media (max-width: 412px) {
+	#myImageCloseIcon {
+		color: orange;
+		position: relative;
+		top: -5px;
+		right: -139px;
+		cursor: pointer;
+	}
+}
+
+/* 픽셀 5- 393 x 851*/
+@media (max-width: 393px) {
+	#loginChatIcon {
+		position: relative;
+		width: 35px;
+		top: -151px;
+		left: 332px;
+	}
+	#findPasswordIcon {
+		position: relative;
+		width: 35px;
+		top: -124px;
+		left: 330px;
+	}
+	#editUserChatIcon {
+		position: relative;
+		width: 35px;
+		top: -191px;
+		left: 341px;
+	}
+	#authChatIcon {
+		position: relative;
+		width: 35px;
+		top: -74px;
+		left: 328px;
+	}
+	#verifyPasswordChatIcon {
+		position: relative;
+		width: 35px;
+		top: -75px;
+		left: 327px;
+	}
+}
+
+/* 아이폰 12 Pro - 390 x 844*/
+@media (max-width: 390px) {
+	#loginChatIcon {
+		position: relative;
+		width: 35px;
+		top: -151px;
+		left: 328px;
+	}
+	#findPasswordIcon {
+		position: relative;
+		width: 35px;
+		top: -124px;
+		left: 327px;
+	}
+	#editUserChatIcon {
+		position: relative;
+		width: 35px;
+		top: -191px;
+		left: 339px;
+	}
+
+	#authChatIcon {
+		position: relative;
+		width: 35px;
+		top: -74px;
+		left: 326px;
+	}
+
+	#verifyPasswordChatIcon {
+		position: relative;
+		width: 35px;
+		top: -75px;
+		left: 326px;
+	}
+}
+
+/* 아이폰 SE - 375 x 667 */
+@media (max-width: 375px) {
+	.outgoing .details p {
+		width: 185px;
+		background: #333;
+		color: #fff;
+		border-radius: 18px 18px 0 18px;
+		word-wrap: break-word;
+	}
+
+	/* 회원가입 화면 상단 채팅 아이콘 */
+	#signupChatIcon {
+		position: relative;
+		width: 40px;
+		top: -250px;
+		left: 340px;
+	}
+	#loginChatIcon {
+		position: relative;
+		width: 35px;
+		top: -151px;
+		left: 312px;
+	}
+	#findPasswordIcon {
+		position: relative;
+		width: 35px;
+		top: -124px;
+		left: 311px;
+	}
+	#editUserChatIcon {
+		position: relative;
+		width: 35px;
+		top: -191px;
+		left: 336px;
+	}
+	#authChatIcon {
+		position: relative;
+		width: 35px;
+		top: -74px;
+		left: 312px;
+	}
+	#verifyPasswordChatIcon {
+		position: relative;
+		width: 35px;
+		top: -75px;
+		left: 309px;
+	}
+
+	#myImgDiffDay {
+		position: relative;
+		top: 4px;
+		color: red;
+		font-weight: bold;
+	}
+
+	#myImageCloseIcon {
+		transition: all 0.2s ease;
+		color: orange;
+		position: relative;
+		top: -2px px;
+		right: -109px;
+		cursor: pointer;
+	}
+
+	#myImageCloseIcon:hover {
+		scale: 0.9;
+	}
+
+	#myImageCloseIcon:active {
+		color: red;
+	}
+}
+
+/* 삼성 갤럭시 S8+ - 360 x 740*/
+@media (max-width: 360px) {
+	#loginChatIcon {
+		position: relative;
+		width: 35px;
+		top: -162px;
+		left: 297px;
+	}
+	#findPasswordIcon {
+		position: relative;
+		width: 35px;
+		top: -124px;
+		left: 298px;
+	}
+	#authChatIcon {
+		position: relative;
+		width: 35px;
+		top: -74px;
+		left: 296px;
+	}
+	#verifyPasswordChatIcon {
+		position: relative;
+		width: 35px;
+		top: -75px;
+		left: 295px;
+	}
+}
+
+/* 갤럭시 폴드 - 280x 653*/
+@media (max-width: 280px) {
+	#loginChatIcon {
+		position: relative;
+		width: 35px;
+		top: -171px;
+		left: 218px;
+	}
+	#findPasswordIcon {
+		position: relative;
+		width: 35px;
+		top: -122px;
+		left: 228px;
+	}
+	#hamburgerModal {
+		position: absolute;
+		top: 44%;
+		left: 5%;
+	}
+	#authChatIcon {
+		position: relative;
+		width: 35px;
+		top: -74px;
+		left: 228px;
+	}
+	#verifyPasswordChatIcon {
+		position: relative;
+		width: 35px;
+		top: -75px;
+		left: 233px;
+	}
+	#myImgDiffDay {
+		display: inline-block;
+		position: relative;
+		top: 4px;
+		left: -10px;
+		color: red;
+		font-weight: bold;
+		width: 300px;
+	}
+}
+
+/* 미디어 쿼리 끝 ===========================================================*/
