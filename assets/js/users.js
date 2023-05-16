@@ -37,7 +37,6 @@ let searchUser = async (searchTerm) => {
 	})
 		.then((response) => response.text())
 		.then((data) => {
-			console.log(data);
 			userList.innerHTML = data;
 		});
 };
@@ -117,3 +116,7 @@ setInterval(async () => {
 			});
 	}
 }, 500);
+
+function submitForm() {
+	document.querySelector('#profileForms').submit();
+}
