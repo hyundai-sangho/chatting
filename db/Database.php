@@ -1,7 +1,7 @@
 <?php
 
 /* php dotenv 사용을 위해 vendor 폴더 내부의 autoload.php require 함. */
-require_once "$_SERVER[DOCUMENT_ROOT]/vendor/autoload.php";
+require_once "../vendor/autoload.php";
 
 /* php dotenv 사용법 */
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -17,13 +17,13 @@ $dotenv->load();
  * return $conn
  *
  * 2. getDataById($id) 메소드
- * users.php에서 user_id를 Get으로 보낸 값을 토대로
- * 데이터를 가져와 프로필 사진, 이름, 활성 상태를 표시
+ * users.php에서 user_id를 GET으로 보낸 값을 토대로
+ * 데이터를 가져와 프로필 사진, 이름, 접속 상태를 표시
  * return $resultData
  *
  * 3. getDataBySessionId($sessionId) 메소드
  * 회원가입 혹은 로그인 시에 생성되는 세션 아이디를 토대로
- * 데이터를 가져와 프로필 사진, 이름, 활성 상태를 표시
+ * 데이터를 가져와 프로필 사진, 이름, 접속 상태를 표시
  *
  * 4. getAllData() 메소드
  * users 테이블의 전체 사용자 데이터를 가져와 화면에 보여줌.
@@ -83,8 +83,8 @@ class Database
 
 
   /**
-   * users.php에서 user_id를 Get으로 보낸 값을 토대로
-   * 데이터를 가져와 프로필 사진, 이름, 활성 상태를 표시
+   * users.php에서 user_id를 GET으로 보낸 값을 토대로
+   * 데이터를 가져와 프로필 사진, 이름, 접속 or 비접속 상태를 표시
    */
   public function getDataById($id)
   {
@@ -104,7 +104,7 @@ class Database
 
   /**
    * 회원가입 혹은 로그인 시에 생성되는 세션 아이디를 토대로
-   * 데이터를 가져와 프로필 사진, 이름, 활성 상태를 표시
+   * 데이터를 가져와 프로필 사진, 이름, 접속 or 비접속 상태를 표시
    */
   public function getDataBySessionId($sessionId)
   {
@@ -118,18 +118,21 @@ class Database
     if ($row_count > 0) {
       $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-      // users.php 에서 로그인한 사용자의 이름, 사진, 활성 상태를 표시
-      echo "<div class='content'>
-              <img src='assets/img/$result[img]' alt='' />
-              <div class='details'>
-                <span>
-                  $result[name]
-                </span>
-              <p>
-                $result[status]
-              </p>
+      // users.php 에서 로그인한 사용자의 이름, 사진, 접속 or 비접속 상태를 표시
+      // 프로필 사진 클릭시 js/users.js 내부의 submitForm() 함수가 실행되면서 form submit 실행
+      // edit-profiles.php 로 POST로 값이 넘어가면서 사용자 정보 수정 화면으로 이동
+      echo "<form action='edit-profile.php' method='POST' id='profileForms'>
+              <div class='content' onclick='submitForm()' style='cursor: pointer'>
+                <input type='hidden' name='unique_id' value='$result[unique_id]'>
+                <img src='$result[img]' alt='프로필 사진' />
+
+                <div class='details' style='margin-top: 12px;'>
+                  <span>
+                    $result[name]
+                  </span>
+                </div>
               </div>
-            </div>";
+            </form>";
     }
   }
 
@@ -159,7 +162,7 @@ class Database
     // $row_count가 1 이상이라면 사용자가 나 이외에도 있다는 뜻이므로 data.php를 require해서
     // 다른 사용자도 화면에 나타나게 함.
     if ($row_count == 0) {
-      $output .= '대화가 가능한 상대가 없네요.';
+      $output .= '대화 가능한 상대가 없네요.';
     } elseif ($row_count >= 1) {
       require_once '../php/data.php';
     }
@@ -176,6 +179,33 @@ class Database
     // 세션 사용
     session_start();
 
+
+
+    function password_crypt($string, $action = 'e') // $action 값은 기본값을 e(ncryted)로 한다.
+    {
+      $secret_key = 'chosangho_secret_key';
+      $secret_iv = 'chosangho_secret_iv';
+
+      $output = false;
+      $encrypt_method = "AES-256-CBC";
+      $key = hash('sha256', $secret_key);
+      $iv = substr(hash('sha256', $secret_iv), 0, 16);
+
+      if ($action == 'e') {
+        $output = base64_encode(openssl_encrypt($string, $encrypt_method, $key, 0, $iv));
+      } else if ($action == 'd') {
+        $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
+      }
+
+      return $output;
+    }
+
+
+
+
+
+
+
     // $email, $password 변수에 값이 없다면 "모든 입력 필드가 필요합니다." 출력
     if (!empty($email) && !empty($password)) {
       $selectUsersTableByEmailQuery = "SELECT * FROM users WHERE email = :email";
@@ -189,39 +219,30 @@ class Database
       if ($row_count > 0) {
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // 디비에 저장된 암호화된 비밀번호와 로그인 페이지에서 입력한 평문 비밀번호와 비교해 검사
-        if (password_verify($password, $row['password']) || $password == $row['password']) {
-          $selectUsersTableByEmailAndPasswordQuery = "SELECT * FROM users WHERE email = :email AND password = :password";
-          $stmt2 = $this->connection()->prepare($selectUsersTableByEmailAndPasswordQuery);
-          $stmt2->bindParam(':email', $email);
-          $stmt2->bindParam(':password', $row['password']);
-          $stmt2->execute();
+        // 디비에서 가져온 비밀번호를 복호화한 뒤의 값을 $descryptedPassword 변수에 저장
+        $decryptedPassword = password_crypt($row['password'], 'd');
 
-          $row_count2 = $stmt2->rowCount();
+        // 로그인에서 입력한 비밀번호와 디비에서 가져온 비밀번호를 복호화 한 후의 값이 같다면
+        if ($password == $decryptedPassword) {
 
-          // $email, $password 변수에 해당하는 users 디비 테이블에 데이터가 있다면
           // 세션 unique_id 값에 디비에서 받아온 unique_id 값 삽입
-          if ($row_count2 > 0) {
-            $row2 = $stmt2->fetch(PDO::FETCH_ASSOC);
-            $_SESSION['unique_id'] = $row2['unique_id'];
+          $_SESSION['unique_id'] = $row['unique_id'];
 
-            $sql = "UPDATE users SET status = '접속' WHERE unique_id = :sessionId";
-            $result = $this->connection()->prepare($sql);
-            $result->bindParam(':sessionId', $_SESSION['unique_id']);
-            $result->execute();
+          $sql = "UPDATE users SET status = '접속' WHERE unique_id = :sessionId";
+          $result = $this->connection()->prepare($sql);
+          $result->bindParam(':sessionId', $_SESSION['unique_id']);
+          $result->execute();
 
-            echo "성공";
-          } else {
-            echo "이메일 또는 비밀번호가 일치하지 않습니다.";
-          }
+          echo "성공";
 
         } else {
-          echo "디비 비밀번호와 입력하신 비밀번호가 안 맞습니다.";
+          echo nl2br("로그인시 입력한 비밀번호가\n디비의 비밀번호와 다릅니다.");
         }
 
       } else {
-        echo "이메일이 디비에 존재하지 않습니다.";
+        echo nl2br("로그인시 입력한 이메일의\n데이터가 디비에 없습니다.");
       }
+
     } else {
       echo "모든 입력 필드가 필요합니다.";
     }
@@ -260,107 +281,118 @@ class Database
   /**
    * 회원가입 창에서 넘어온 이름, 이메일, 비밀번호를 users 디비 테이블에 저장
    */
-  public function signUp($name, $email, $password)
+  public function signUp($name, $email, $password, $imageFile)
   {
-    // $name 변수의 공백 제거
-    $name = preg_replace("/\s+/", "", $name);
 
-    // 비밀번호 암호화
-    $encrypted_password = password_hash($password, PASSWORD_DEFAULT);
+    $sql = "SELECT * FROM users WHERE email = :email";
+    $result = $this->connection()->prepare($sql);
+    $result->bindParam(':email', $email);
+    $result->execute();
 
-    // 이름, 이메일, 비밀번호가 없다면 "모든 입력 필드는 필수입니다." 화면에 출력
-    if (!empty($name) && !empty($email) && !empty($password)) {
-      // 이메일이 이메일 형식이 아니라면 "이메일 형식이 아니네요." 화면에 출력
-      if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $sql = "SELECT * FROM users WHERE email = :email";
-        $result = $this->connection()->prepare($sql);
-        $result->bindParam(':email', $email);
-        $result->execute();
+    $row_count = $result->rowCount();
 
-        $row_count = $result->rowCount();
+    // 회원가입 창에서 입력한 이메일과 같은 이메일이 디비에 존재한다면
+    // "이미 존재하는 이메일입니다." 화면에 출력
+    if ($row_count > 0) {
+      echo "{$email}은 이미 존재하는 이메일입니다.";
+    }
 
-        // 회원가입 창에서 입력한 이메일과 같은 이메일이 디비에 존재한다면
-        // "이미 존재하는 이메일입니다." 화면에 출력
-        if ($row_count > 0) {
-          echo "{$email}은 이미 존재하는 이메일입니다.";
-        }
-        // 같은 이메일이 없다면 디비에 저장
-        else {
-          // 회원 가입창에서 프로필 사진을 넣었다면
-          if (isset($_FILES['image'])) {
-            $img_name = $_FILES['image']['name']; // 사용자가 업로드한 이미지 이름 가져오기
-            $tmp_name = $_FILES['image']['tmp_name']; // 사용자가 업로드한 이미지의 임시 파일명 가져오기
+    // 같은 이메일이 없다면 디비에 저장
+    else {
+      // 회원가입 화면에서 프로필 이미지 선택을 따로 안 했다면 프로필 이미지는 "default.png"로 들어감.
+      if ($imageFile == null) {
+        $status = "접속";
 
-            // 이미지명을 이름과 확장자를 분리해서 $img_explode 배열에 삽입
-            $img_explode = explode('.', $img_name);
-            // $img_ext 변수명에 이미지 확장자만 추출해서 삽입
-            $img_ext = end($img_explode);
+        // 랜덤 숫자 구하기
+        $random_id = rand(time(), 10000000);
 
-            // $extensions 배열에 이미지로 받을 확장자의 종류를 삽입
-            $extensions = ['png', 'jpeg', 'jpg', 'webp'];
-            // $extensions 배열에 사용자가 업로드한 이미지의 확장자명이 포함된다면
-            if (in_array($img_ext, $extensions) === true) {
-              // 현재 시간 구하기
-              $time = time();
+        // 기본 이미지(회원가입 화면에서 프로필 이미지를 선택하지 않았다면 기본 이미지로 업로드)
+        $default_image = "/base/default.png";
 
-              // 이미지 중복 방지를 위해 현재 시간과 이미지명을 합쳐서 $new_img_name 변수명에 값 저장
-              $new_img_name = $time . '_' . $img_name;
-              // 이미지를 assets/img 폴더 내에 $new_img_name 명으로 이미지 파일 저장
-              if (move_uploaded_file($tmp_name, "../assets/img/$new_img_name")) {
-                $status = "접속";
+        $sql2 = "INSERT INTO users (unique_id, name, email, password, img, status ) VALUES (:random_id, :name, :email, :password, :img, :status)";
 
-                // 랜덤 숫자 구하기
-                $random_id = rand(time(), 10000000);
+        $result2 = $this->connection()->prepare($sql2);
 
-                $sql2 = "INSERT INTO users (unique_id, name, email, password, img, status ) VALUES (:random_id, :name, :email, :encrypted_password, :new_img_name, :status)";
-                // $sql2 = mysqli_query($conn, "INSERT INTO users (unique_id, name, email, password, img, status ) VALUES ('{$random_id}', '{$name}', '{$email}', '{$encrypted_password}', '{$new_img_name}', '{$status}')");
+        $result2->bindParam(':random_id', $random_id);
+        $result2->bindParam(':name', $name);
+        $result2->bindParam(':email', $email);
+        $result2->bindParam(':password', $password);
+        $result2->bindParam(':img', $default_image);
+        $result2->bindParam(':status', $status);
 
-                $result2 = $this->connection()->prepare($sql2);
+        $result2->execute();
 
-                $result2->bindParam(':random_id', $random_id);
-                $result2->bindParam(':name', $name);
-                $result2->bindParam(':email', $email);
-                $result2->bindParam(':encrypted_password', $encrypted_password);
-                $result2->bindParam(':new_img_name', $new_img_name);
-                $result2->bindParam(':status', $status);
+        // 회원정보 데이터를 입력하고 가입한 이메일로 다시 쿼리로 돌려보면서 제대로 디비에 들어갔는지 확인
+        if ($result2) {
+          $sql3 = "SELECT * FROM users WHERE email = :email";
+          $result3 = $this->connection()->prepare($sql3);
+          $result3->bindParam(':email', $email);
+          $result3->execute();
 
-                $result2->execute();
+          $row_count2 = $result3->rowCount();
 
-                if ($result2) {
-                  $sql3 = "SELECT * FROM users WHERE email = :email";
-                  $result3 = $this->connection()->prepare($sql3);
-                  $result3->bindParam(':email', $email);
-                  $result3->execute();
+          // 회원정보가 제대로 입력이 됐으니 디비에서 받아온 unique_id 값을 세션 unique_id 값에 삽입
+          if ($row_count2 > 0) {
+            $row = $result3->fetch(PDO::FETCH_ASSOC);
 
-                  $row_count2 = $result3->rowCount();
+            // 여기까지 왔다면 회원 데이터가 제대로 디비에 저장이 되고
+            // 세션 unique_id에 디비에서 받아온 unique_id 값 저장
+            $_SESSION['unique_id'] = $row['unique_id'];
 
-                  if ($row_count2 > 0) {
-                    $row = $result3->fetch(PDO::FETCH_ASSOC);
+            // 회원가입 완료 후 세션 authCode 제거(이메일 인증코드)
+            unset($_SESSION['authCode']);
 
-                    // 여기까지 왔다면 회원 데이터가 제대로 디비에 저장이 되고
-                    // 세션 unique_id에 디비에서 받아온 unique_id 값 저장
-                    $_SESSION['unique_id'] = $row['unique_id'];
-
-                    echo "성공";
-                  }
-                }
-              } else {
-                echo "뭔가 잘못됐다.";
-              }
-
-            } else {
-              echo "이미지 파일을 선택하세요. - jpeg, jpg, png";
-            }
-
-          } else {
-
+            echo "{ code : 200, message : 회원 가입 성공 }";
+            exit;
           }
         }
-      } else {
-        echo "이메일 형식이 아니네요.";
       }
-    } else {
-      echo "모든 입력 필드는 필수입니다.";
+
+      // 회원가입 화면에서 프로필 사진을 넣었다면
+      else {
+
+        $status = "접속";
+
+        // 랜덤 숫자 구하기
+        $random_id = rand(time(), 10000000);
+
+        $sql2 = "INSERT INTO users (unique_id, name, email, password, img, status ) VALUES (:random_id, :name, :email, :password, :new_img_name, :status)";
+
+        $result2 = $this->connection()->prepare($sql2);
+
+        $result2->bindParam(':random_id', $random_id);
+        $result2->bindParam(':name', $name);
+        $result2->bindParam(':email', $email);
+        $result2->bindParam(':password', $password);
+        // $result2->bindParam(':new_img_name', $new_img_name);
+        $result2->bindParam(':new_img_name', $imageFile);
+        $result2->bindParam(':status', $status);
+
+        $result2->execute();
+
+        if ($result2) {
+          $sql3 = "SELECT * FROM users WHERE email = :email";
+          $result3 = $this->connection()->prepare($sql3);
+          $result3->bindParam(':email', $email);
+          $result3->execute();
+
+          $row_count2 = $result3->rowCount();
+
+          if ($row_count2 > 0) {
+            $row = $result3->fetch(PDO::FETCH_ASSOC);
+
+            // 여기까지 왔다면 회원 데이터가 제대로 디비에 저장이 되고
+            // 세션 unique_id에 디비에서 받아온 unique_id 값 저장
+            $_SESSION['unique_id'] = $row['unique_id'];
+
+            // 회원가입 완료 후 세션 authCode 제거(이메일 인증코드)
+            unset($_SESSION['authCode']);
+
+            echo "{ code : 200, message : 회원 가입 성공 }";
+          }
+        }
+
+      }
     }
   }
 
@@ -378,8 +410,10 @@ class Database
     return $result->fetch(PDO::FETCH_ASSOC);
   }
 
-  public function getDataByMessageAndOutgoingIdAndIncomingId($message, $outgoingId, $incomingId)
+  public function getDataByMessageAndOutgoingIdAndIncomingId($message, $outgoingId, $incomingId, $imageFileName)
   {
+
+    // 메시지가 비어있지 않다면 => 메시지가 있다면
     if (!empty($message)) {
       try {
         $sql = "INSERT INTO messages (msg, outgoing_msg_id, incoming_msg_id) VALUES (:message, :outgoing_id, :incoming_id)";
@@ -388,11 +422,31 @@ class Database
         $result->bindParam(':outgoing_id', $outgoingId);
         $result->bindParam(':incoming_id', $incomingId);
         $result->execute();
+
+        $row = $result->rowCount();
+
+        if ($row > 0) {
+          echo "성공";
+        }
       } catch (PDOException $e) {
-        echo "INSERT 쿼리 실패";
-        die();
+        echo "메시지 업로드 중 getDataByMessageAndOutgoingIdAndIncomingId() 함수 INSERT 쿼리 실패";
       }
 
+      // 메시지가 비었다면 => 즉, 사진 파일을 올렸다면(사진 파일을 올릴 시에는 텍스트는 삽입 안 함.)
+    } else {
+
+      try {
+        $sql = "INSERT INTO messages (outgoing_msg_id, incoming_msg_id, msg_image) VALUES (:outgoing_id, :incoming_id, :msg_image)";
+        $result = $this->connection()->prepare($sql);
+        $result->bindParam(':outgoing_id', $outgoingId);
+        $result->bindParam(':incoming_id', $incomingId);
+        $result->bindParam(':msg_image', $imageFileName);
+        $result->execute();
+
+        echo "성공";
+      } catch (PDOException $e) {
+        echo "사진 업로드 중 getDataByMessageAndOutgoingIdAndIncomingId() 함수 INSERT 쿼리 실패";
+      }
     }
   }
 
@@ -415,26 +469,131 @@ class Database
     if ($row_count > 0) {
 
       foreach ($results as $row) {
+
+        $currentDate = new DateTime('now');
+        $currentDate = $currentDate->format('Y-m-d');
+        $substringCurrentDate = substr($currentDate, 0, 10);
+        $currentDate = new DateTime($substringCurrentDate);
+
+        $substringWriteDate = substr($row['msg_time'], 0, 10);
+        $writeDate = new DateTime($substringWriteDate);
+        $diff = $currentDate->diff($writeDate);
+
+        // 글 작성일과 오늘 날짜가 하루 이상 차이가 난다면 $diffDay 변수에 날짜 저장
+        if ($diff->days >= 1) {
+
+          $selectMsgIdQuery = "SELECT msg_id FROM `messages` WHERE ((outgoing_msg_id = $outgoingId AND incoming_msg_id = $incomingId) OR (outgoing_msg_id = $incomingId AND incoming_msg_id = $outgoingId)) AND DATE(msg_time) = '$substringWriteDate' ORDER BY msg_id DESC LIMIT 1";
+
+          $selectMsgIdQueryResult = $this->connection()->prepare($selectMsgIdQuery);
+          $selectMsgIdQueryResult->execute();
+          $selectMsgIdQueryResultRow = $selectMsgIdQueryResult->fetch(PDO::FETCH_ASSOC);
+
+          if ($selectMsgIdQueryResultRow['msg_id'] == $row['msg_id']) {
+
+            // 날짜 기준으로 요일 계산하기
+            $yoil = array("일", "월", "화", "수", "목", "금", "토");
+            $yoil = $yoil[date('w', strtotime($substringWriteDate))];
+
+
+            // 날짜에 년, 월, 일, 요일 넣기
+            $substringWriteDate = substr($substringWriteDate, 0, 4) . "년 " . substr($substringWriteDate, 5, 2) . "월 " . substr($substringWriteDate, 8, 2) . "일 " . "($yoil)";
+            $diffDay = $substringWriteDate;
+
+            $diff = "$diffDay";
+          } else {
+            $diff = null;
+          }
+
+        } else {
+          $diff = null;
+        }
+
+        // 디비에서 msg_time 가져온 뒤에 시간과 분만 따로 추출해서 $msgTime 변수에 저장
+        $msgTime = substr($row['msg_time'], 10, 6) . '분';
+
+
+        $rowMsg = nl2br($row['msg']);
+
         // 메시지 보낸 사람 = 나
         if ($row['outgoing_msg_id'] == $outgoingId) {
-          $output .= "<div class='chat outgoing'>
-                                <div class='details'>
-                                  <p> $row[msg] </p>
-                                </div>
-                              </div>";
-        } else { // 메시지 받는 사람 = 다른 사람
-          $output .= "<div class='chat incoming'>
-                                  <img src='assets/img/$row[img]' alt=' />
+          if ($row['msg_image']) {
+
+            $output .= "<div class='chat outgoing'>
                                   <div class='details'>
-                                    <p> $row[msg] </p>
+                                    <span style='position: relative; left: -70px; top: 30px;'>$msgTime</span>
+                                    <i id='myImageCloseIcon' class='fas fa-times myImageCloseIcon' onclick='deleteMessage($row[msg_id])'></i>
+                                    <img src='$row[msg_image]' style='width: 100%; object-fit: cover; border-radius: 5px;' class='chatPhotoImage'>
+
+                                    <a href='$row[msg_image]' download style='position: relative; top: -30px; left: -70px;'><button style='cursor: pointer;'>다운로드</button></a>
+
+                                    <span id='myImgDiffDay'>$diff</span>
+
+                                    </div>
+                                </div>";
+          } else {
+            $output .= "<div class='chat outgoing'>
+                                  <div class='details'>
+                                    <span style='position: relative; left: -70px; top: 30px;'>$msgTime</span>
+                                    <p> $rowMsg <i id='myMessageCloseIcon' class='fas fa-times myImageCloseIcon' onclick='deleteMessage($row[msg_id])'></i> </p>
+
+                                    <span id='myImgDiffDay'>$diff</span>
+
                                   </div>
                                 </div>";
+          }
+
+        } else { // 메시지 받는 사람 = 다른 사람
+          if ($row['msg_image']) {
+            if (isset($diff)) {
+              $output .= "<div class='chat incoming'>
+                                    <img src='assets/img/$row[img]' alt='프로필 사진' />
+
+                                    <div class='details' style='position: relative;'>
+                                      <img src='assets/img/$row[msg_image]' style='margin-left: 10px; width: 200px; height: 200px; object-fit: cover; border-radius: 5px;' class='chatPhotoImage'>
+                                      <span style='position: absolute; left: 220px; top: 10px; width: 50%;'>$msgTime</span>
+
+                                      <a href='assets/img/$row[msg_image]' download><button style='position:relative; left: 220px; top: -25px; cursor: pointer;'>다운로드</button></a>
+                                      <span style='position: relative; top: 1px; left: -50px; color: red; font-weight: bold'>$diff</span>
+                                    </div>
+                                  </div>";
+            } else {
+              $output .= "<div class='chat incoming'>
+                                  <img src='assets/img/$row[img]' alt='프로필 사진' />
+
+                                    <div class='details' style='position: relative;'>
+                                      <img src='assets/img/$row[msg_image]' style='margin-left: 10px; width: 200px; height: 200px; object-fit: cover; border-radius: 5px;' class='chatPhotoImage'>
+                                      <span style='position: absolute; left: 220px; top: 10px; width: 50%;'>$msgTime</span>
+
+                                      <a href='assets/img/$row[msg_image]' download><button style='position:relative; left: 220px; top: -25px; cursor: pointer;'>다운로드</button></a>
+                                    </div>
+                                  </div>";
+            }
+
+
+          } else {
+            $output .= "<div class='chat incoming'>
+                                  <img src='assets/img/$row[img]' alt='프로필 사진' />
+                                  <div class='details'>
+                                    <span style='position: relative; left: 210px; top: 30px;'>$msgTime</span>
+                                    <p> $rowMsg </p>
+                                    <span style='position: relative; top: 15px; color: red; font-weight: bold'>$diff</span>
+                                  </div>
+                                </div>";
+          }
 
         }
       }
     } else {
       $output .= '<div class="text">메시지가 없습니다. <br> 메시지를 보내면 여기에 나타납니다.</div>';
     }
+
+    // 상대방이 보낸 채팅 메시지를 chat.php에 들어가 봤다면 msg_read를 'yes'로 업데이트
+    $readMsgUpdateQuery = "UPDATE messages SET msg_read = 'yes' WHERE outgoing_msg_id = :outgoingId AND incoming_msg_id = :incomingId";
+    $readMsgUpdateResult = $this->connection()->prepare($readMsgUpdateQuery);
+    $readMsgUpdateResult->bindParam(':outgoingId', $incomingId);
+    $readMsgUpdateResult->bindParam(':incomingId', $outgoingId);
+    $readMsgUpdateResult->execute();
+
     echo $output;
 
   }
@@ -452,6 +611,118 @@ class Database
       return "업데이트 성공";
     } else {
       return "업데이트 실패";
+    }
+  }
+
+  public function getUserDataById($unique_id)
+  {
+    $sql = "SELECT * FROM users WHERE unique_id = :unique_id";
+    $result = $this->connection()->prepare($sql);
+    $result->bindParam(':unique_id', $unique_id);
+    $result->execute();
+
+    return $result->fetch(PDO::FETCH_ASSOC);
+  }
+
+  public function editUserData($name, $email, $password, $image, $uniqueId)
+  {
+    // 프로필 수정에서 변경한 사진이 있다면 업데이트 구문에 입력
+    if ($image !== null) {
+
+      $updateSql = "UPDATE users SET name = :name, email = :email, password = :password, img = :img WHERE unique_id = :uniqueId";
+      $updateResult = $this->connection()->prepare($updateSql);
+      $updateResult->bindParam(':name', $name);
+      $updateResult->bindParam(':email', $email);
+      $updateResult->bindParam(':password', $password);
+      $updateResult->bindParam(':img', $image);
+      $updateResult->bindParam(':uniqueId', $uniqueId);
+
+      $updateResultRow = $updateResult->execute();
+
+      if ($updateResultRow == 1) {
+        echo "프로필 수정 성공";
+        exit;
+      } else {
+        echo "프로필 수정이 되지 않았습니다. 뭔가 문제가 있습니다.";
+        exit;
+      }
+
+      // 프로필 수정에서 변경한 사진이 없다면
+    } else {
+
+      $sql = "SELECT * FROM users WHERE unique_id = :uniqueId";
+      $result = $this->connection()->prepare($sql);
+      $result->bindParam(':uniqueId', $uniqueId);
+      $result->execute();
+
+      $row = $result->fetch(PDO::FETCH_ASSOC);
+
+      // 이름, 이메일, 패스워드 모두 다 기존 데이터와 같다면 업데이트가 의미가 없으므로 users.php 로 보내버림
+      if ($name == $row['name'] && $email == $row['email'] && $password == $row['password']) {
+        echo "이름, 이메일, 비밀번호 모두 변경된 값이 없습니다.";
+        exit;
+
+        // 이름, 이메일, 패스워드 뭐 하나라도 바뀐게 있다면 UPDATE문 실행
+      } else {
+        $updateSql = "UPDATE users SET name = :name, email = :email, password = :password WHERE unique_id = :uniqueId";
+        $updateResult = $this->connection()->prepare($updateSql);
+        $updateResult->bindParam(':name', $name);
+        $updateResult->bindParam(':email', $email);
+        $updateResult->bindParam(':password', $password);
+        $updateResult->bindParam(':uniqueId', $uniqueId);
+
+        $updateResultRow = $updateResult->execute();
+
+        if ($updateResultRow == 1) {
+          echo "프로필 수정 성공";
+          exit;
+        } else {
+          echo "프로필 수정이 되지 않았습니다. 뭔가 문제가 있습니다.";
+          exit;
+        }
+      }
+
+
+    }
+  }
+
+
+  public function deleteMessage($deleteMessageId)
+  {
+    $sql = "DELETE FROM messages WHERE msg_id = :msg_id";
+    $result = $this->connection()->prepare($sql);
+    $result->bindParam(':msg_id', $deleteMessageId);
+    $result->execute();
+  }
+
+
+  public function getUsersDataByNameAndEMail($name, $email)
+  {
+    $sql = "SELECT * FROM users WHERE name = :name AND email = :email;";
+    $result = $this->connection()->prepare($sql);
+    $result->bindParam(':name', $name);
+    $result->bindParam(':email', $email);
+    $result->execute();
+
+    $row_count = $result->rowCount();
+
+    if ($row_count > 0) {
+      $row = $result->fetch(PDO::FETCH_ASSOC);
+      return $row['password'];
+    }
+  }
+
+  public function getData_passwordFindTable_randomString()
+  {
+    $sql = "SELECT * FROM authcode ORDER BY RAND() LIMIT 1;";
+    $result = $this->connection()->prepare($sql);
+    $result->execute();
+
+    $row_count = $result->rowCount();
+
+    if ($row_count > 0) {
+      $row = $result->fetch(PDO::FETCH_ASSOC);
+      return $row['randomString'];
     }
   }
 

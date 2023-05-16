@@ -19,6 +19,8 @@ if (isset($_SESSION['unique_id'])) {
 
     // 쿠키에 저장되어 있는 email 제거
     setcookie('email', '', time() - 3600, '/');
+    setcookie('talkFriend', '', time() - 3600, '/');
+
 
     // 디비 커넥션 끊기
     $database->connectionClose();

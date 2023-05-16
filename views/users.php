@@ -12,14 +12,16 @@ if (!isset($_SESSION['unique_id'])) {
 ?>
 
 <!-- 헤더 -->
-<?php require_once __DIR__ . '/header.php'; ?>
+<?php require_once 'header.php'; ?>
 <!-- 헤더 -->
+
+<!-- jquery 모달 css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
 
 <body>
   <div class="wrapper">
     <section class="users">
       <header>
-
         <?php
 
         require_once '../db/Database.php';
@@ -36,14 +38,18 @@ if (!isset($_SESSION['unique_id'])) {
         // 디비 커넥션 끊기
         $database->connectionClose();
 
+
         ?>
 
 
-        <a href="php/logout.php" class="logout">로그아웃</a>
+        <a href="#hamburgerModal" rel="modal:open" class="logout">
+          <i class="fas fa-bars fa-lg"></i>
+        </a>
       </header>
-      <div class="search">
+
+      <div class=" search">
         <span class="text">채팅을 시작할 사용자를 선택</span>
-        <input type="text" placeholder="검색할 이름을 입력" />
+        <input type="text" placeholder="검색할 사람을 입력" />
         <button><i class="fas fa-search"></i></button>
       </div>
       <div class="users-list">
@@ -51,6 +57,22 @@ if (!isset($_SESSION['unique_id'])) {
       </div>
     </section>
 
+    <!-- 햄버거 버튼 모달-->
+    <div id="hamburgerModal" class="modal" style="width: 250px; text-align: center;">
+      <a href="php/logout.php">
+        <button class="hamburgerChildButton" style='background-color: red'>로그아웃</button>
+      </a>
+
+      <a href="edit-profile.php">
+        <button class="hamburgerChildButton">프로필 수정</button>
+      </a>
+    </div>
+
+    <!-- jquery.js 추가 :) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+
+    <!-- jquery modal js 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
     <script src="assets/js/users.js"></script>
   </div>
 </body>

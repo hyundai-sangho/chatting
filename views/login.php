@@ -1,7 +1,3 @@
-<!-- 헤더 -->
-<?php require_once 'header.php'; ?>
-<!-- 헤더 -->
-
 <?php
 
 // 세션 사용
@@ -25,16 +21,52 @@ if (isset($_COOKIE['email'])) {
   // 쿠키로 저장되어 있는 이메일을 토대로 디비에 사용자가 존재하는지 확인
   $result = $database->getDataByEmail($email);
 
+
+
+
+
+  function password_crypt($string, $action = 'e') // $action 값은 기본값을 e(ncryted)로 한다.
+  {
+    $secret_key = 'chosangho_secret_key';
+    $secret_iv = 'chosangho_secret_iv';
+
+    $output = false;
+    $encrypt_method = "AES-256-CBC";
+    $key = hash('sha256', $secret_key);
+    $iv = substr(hash('sha256', $secret_iv), 0, 16);
+
+    if ($action == 'e') {
+      $output = base64_encode(openssl_encrypt($string, $encrypt_method, $key, 0, $iv));
+    } else if ($action == 'd') {
+      $output = openssl_decrypt(base64_decode($string), $encrypt_method, $key, 0, $iv);
+    }
+
+    return $output;
+  }
+
+  $descryptedPassword = password_crypt($result['password'], 'd');
+
+
+
+
+
   // 디비 커넥션 끊기
   $database->connectionClose();
 }
 
 ?>
 
+<!-- 헤더 -->
+<?php require_once 'header.php'; ?>
+<!-- 헤더 -->
+
 <body>
+
   <div class="wrapper">
     <section class="form login">
-      <header>로그인</header>
+      <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #ccc;">
+        <header>로그인</header> <img src="assets/img/base/talk.png" alt="채팅 아이콘" style="width: 35px; height: 35px; border-radius: 5px;">
+      </div>
       <form action="#">
         <div class="error-txt"></div>
 
@@ -44,14 +76,23 @@ if (isset($_COOKIE['email'])) {
         </div>
         <div class="field input">
           <label>비밀번호</label>
-          <input type="password" name="password" id="password" value="<?= $result['password'] ?? '' ?>" />
-          <i class="fas fa-eye"></i>
+          <input type="password" name="password" id="password" value="<?= $descryptedPassword ?? '' ?>" />
+          <i class="fas fa-eye" class="eyePassword"></i>
         </div>
 
 
-        <div>
-          <i class="far fa-check-square" id="loginMaintain"></i>
-          <span id="loginStatusMaintain">로그인 상태 유지</span>
+        <div style="display: flex; justify-content: space-between;">
+          <div>
+            <i class="far fa-check-square" id="loginMaintain"></i>
+            <span id="loginStatusMaintain">로그인 상태 유지</span>
+          </div>
+
+          <div>
+            <a href="find-password.php" style="color: black;">
+              <i class="fa-solid fa-key" id="passwordFind"></i>
+              <span id="passwordFindText">비밀번호 찾기</span>
+            </a>
+          </div>
         </div>
 
         <div class="field button">

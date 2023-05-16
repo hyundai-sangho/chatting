@@ -1,7 +1,7 @@
 <?php
 
-// 세션 사용
-session_start();
+// // 세션 사용
+// session_start();
 
 require_once '../db/Database.php';
 
