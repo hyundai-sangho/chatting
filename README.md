@@ -145,10 +145,28 @@ chatting
 
 14. API 명세서
 
-| Index | Method | URI                        | Description                               |
-| :---: | :----: | :------------------------- | :---------------------------------------- |
-|   1   |  GET   | /chat.php?user_id={userId} | userId에 해당하는 상대의 채팅 데이터 조회 |
-|   2   |  GET   | /users.php                 | 나를 제외한 전체 대화 상대 조회           |
+| Index | Method | URI             | Description |
+| :---: | :----- | :-------------- | :---------- |
+|   1   | POST   | /php/signup.php | 회원가입    |
+
+<pre>
+• 요청
+  {
+  "compressedFile": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4g",
+  "name": "조장혁",
+  "email": "chojanghyuk@naver.com",
+  "authCode": "7587843448",
+  "password": "!chojanghyuk123"
+  }
+
+• 응답
+1) 성공
+{ code : 200, message : 회원 가입 성공 }
+
+2) 실패: 이메일 인증 코드 입력 시간이 만료되었을 때
+{ code: 401, message: 인증 코드 입력 시간이 3분이 지났습니다. }
+
+</pre>
 
 ### 주의점
 
@@ -220,6 +238,8 @@ chatting
 3. 폴더 구조를 세분화하고 각 기능별로 잘 나눠야 할 필요가 있음.
 
 4. if문 중첩으로 가독성이 떨어지는 부분은 가능한 줄이고 잘 읽히는 코드로 리팩터링 필요함.
+
+5. API 명세서 작성
 
 ### 디비 사용법
 
