@@ -32,7 +32,7 @@ CREATE TABLE `messages` (
   `incoming_msg_id` int(255) NOT NULL,
   `outgoing_msg_id` int(255) NOT NULL,
   `msg` varchar(1000) NOT NULL,
-  `current_msg_time` datetime NOT NULL DEFAULT current_timestamp()
+  `msg_time` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
