@@ -532,56 +532,6 @@ form .name-details .field:first-child {
 	cursor: default;
 }
 
-.chatIcon {
-	transition: all 0.2s ease;
-}
-
-.chatIcon:hover {
-	scale: 1.5;
-}
-
-#signupChatIcon {
-	position: relative;
-	width: 35px;
-	top: -245px;
-	left: 420px;
-}
-
-#loginChatIcon {
-	position: relative;
-	width: 35px;
-	top: -151px;
-	left: 420px;
-}
-
-#findPasswordIcon {
-	position: relative;
-	width: 35px;
-	top: -124px;
-	left: 420px;
-}
-
-#editUserChatIcon {
-	position: relative;
-	width: 35px;
-	top: -191px;
-	left: 420px;
-}
-
-#authChatIcon {
-	position: relative;
-	width: 35px;
-	top: -75px;
-	left: 420px;
-}
-
-#verifyPasswordChatIcon {
-	position: relative;
-	width: 35px;
-	top: -75px;
-	left: 420px;
-}
-
 #myImgDiffDay {
 	position: relative;
 	left: 30px;
@@ -593,45 +543,6 @@ form .name-details .field:first-child {
 /* 미디어 쿼리 시작 =========================================================*/
 /* 아이폰 XR - 414 x 896 */
 @media (max-width: 414px) {
-	/* 회원가입 화면 상단 채팅 아이콘 */
-	#signupChatIcon {
-		position: relative;
-		width: 40px;
-		top: -250px;
-		left: 347px;
-	}
-
-	#loginChatIcon {
-		position: relative;
-		width: 35px;
-		top: -151px;
-		left: 352px;
-	}
-
-	#findPasswordIcon {
-		position: relative;
-		width: 35px;
-		top: -124px;
-		left: 350px;
-	}
-	#editUserChatIcon {
-		position: relative;
-		width: 35px;
-		top: -191px;
-		left: 351px;
-	}
-	#authChatIcon {
-		position: relative;
-		width: 35px;
-		top: -74px;
-		left: 350px;
-	}
-	#verifyPasswordChatIcon {
-		position: relative;
-		width: 35px;
-		top: -75px;
-		left: 348px;
-	}
 	#myImageCloseIcon {
 		color: orange;
 		position: relative;
@@ -654,72 +565,10 @@ form .name-details .field:first-child {
 
 /* 픽셀 5- 393 x 851*/
 @media (max-width: 393px) {
-	#loginChatIcon {
-		position: relative;
-		width: 35px;
-		top: -151px;
-		left: 332px;
-	}
-	#findPasswordIcon {
-		position: relative;
-		width: 35px;
-		top: -124px;
-		left: 330px;
-	}
-	#editUserChatIcon {
-		position: relative;
-		width: 35px;
-		top: -191px;
-		left: 341px;
-	}
-	#authChatIcon {
-		position: relative;
-		width: 35px;
-		top: -74px;
-		left: 328px;
-	}
-	#verifyPasswordChatIcon {
-		position: relative;
-		width: 35px;
-		top: -75px;
-		left: 327px;
-	}
 }
 
 /* 아이폰 12 Pro - 390 x 844*/
 @media (max-width: 390px) {
-	#loginChatIcon {
-		position: relative;
-		width: 35px;
-		top: -151px;
-		left: 328px;
-	}
-	#findPasswordIcon {
-		position: relative;
-		width: 35px;
-		top: -124px;
-		left: 327px;
-	}
-	#editUserChatIcon {
-		position: relative;
-		width: 35px;
-		top: -191px;
-		left: 339px;
-	}
-
-	#authChatIcon {
-		position: relative;
-		width: 35px;
-		top: -74px;
-		left: 326px;
-	}
-
-	#verifyPasswordChatIcon {
-		position: relative;
-		width: 35px;
-		top: -75px;
-		left: 326px;
-	}
 }
 
 /* 아이폰 SE - 375 x 667 */
@@ -730,44 +579,6 @@ form .name-details .field:first-child {
 		color: #fff;
 		border-radius: 18px 18px 0 18px;
 		word-wrap: break-word;
-	}
-
-	/* 회원가입 화면 상단 채팅 아이콘 */
-	#signupChatIcon {
-		position: relative;
-		width: 40px;
-		top: -250px;
-		left: 340px;
-	}
-	#loginChatIcon {
-		position: relative;
-		width: 35px;
-		top: -151px;
-		left: 312px;
-	}
-	#findPasswordIcon {
-		position: relative;
-		width: 35px;
-		top: -124px;
-		left: 311px;
-	}
-	#editUserChatIcon {
-		position: relative;
-		width: 35px;
-		top: -191px;
-		left: 336px;
-	}
-	#authChatIcon {
-		position: relative;
-		width: 35px;
-		top: -74px;
-		left: 312px;
-	}
-	#verifyPasswordChatIcon {
-		position: relative;
-		width: 35px;
-		top: -75px;
-		left: 309px;
 	}
 
 	#myImgDiffDay {
@@ -797,63 +608,16 @@ form .name-details .field:first-child {
 
 /* 삼성 갤럭시 S8+ - 360 x 740*/
 @media (max-width: 360px) {
-	#loginChatIcon {
-		position: relative;
-		width: 35px;
-		top: -162px;
-		left: 297px;
-	}
-	#findPasswordIcon {
-		position: relative;
-		width: 35px;
-		top: -124px;
-		left: 298px;
-	}
-	#authChatIcon {
-		position: relative;
-		width: 35px;
-		top: -74px;
-		left: 296px;
-	}
-	#verifyPasswordChatIcon {
-		position: relative;
-		width: 35px;
-		top: -75px;
-		left: 295px;
-	}
 }
 
 /* 갤럭시 폴드 - 280x 653*/
 @media (max-width: 280px) {
-	#loginChatIcon {
-		position: relative;
-		width: 35px;
-		top: -171px;
-		left: 218px;
-	}
-	#findPasswordIcon {
-		position: relative;
-		width: 35px;
-		top: -122px;
-		left: 228px;
-	}
 	#hamburgerModal {
 		position: absolute;
 		top: 44%;
 		left: 5%;
 	}
-	#authChatIcon {
-		position: relative;
-		width: 35px;
-		top: -74px;
-		left: 228px;
-	}
-	#verifyPasswordChatIcon {
-		position: relative;
-		width: 35px;
-		top: -75px;
-		left: 233px;
-	}
+
 	#myImgDiffDay {
 		display: inline-block;
 		position: relative;
