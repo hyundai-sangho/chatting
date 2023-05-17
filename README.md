@@ -1,8 +1,10 @@
 ## 채팅 애플리케이션
 
 목차
-[1.작성자](#작성자)
-[2.사이트 사용법](#사이트-사용법)
+
+[1. 작성자](#작성자)<br>
+
+[2. 사이트 사용법](#사이트-사용법)<br>
 
 ## 작성자
 
@@ -257,6 +259,15 @@ chatting
   2) Request Method가 DELETE 요청이 아닐 때
   { message: DELETE 요청이 아닙니다. }
 </pre>
+
+15. 참고 자료
+
+- Chat Application using PHP with MySQL & JavaScript
+- <https://www.youtube.com/watch?v=VnvzxGWiK54>
+
+16. 라이센스
+
+- GPL 라이센스를 사용합니다.
 
 ### 주의점
 
