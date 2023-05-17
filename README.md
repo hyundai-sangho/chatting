@@ -1,6 +1,11 @@
 ## 채팅 애플리케이션
 
-1. 작성자
+목차
+[1.작성자](#작성자)
+[2.사이트 사용법](#사이트-사용법)
+
+## 작성자
+
 <pre>
 
 - 조상호
@@ -9,12 +14,12 @@
 
 </pre>
 
-2. 사이트 사용법
+## 사이트 사용법
 
 <pre>
-테스트 할 떄는 서로 다른 브라우저 2개의 브라우저
-예를 들어, Edge 브라우저와, Chrome 브라우저를 열고 https://chosangho.site/ 사이트에 들어가서
-각자 다른 이름으로 회원 가입을 하면 로그인 처리가 되고 대화 상대방을 선택해서 채팅이 가능함.
+혼자서 테스트 할 때는 서로 다른 2개의 브라우저
+Edge 브라우저와, Chrome 브라우저를 열고 각각 https://chosangho.site/ 사이트에 들어가서
+각자 다른 이메일로 회원 가입을 하면 로그인 처리가 되고 대화 상대방을 선택해서 채팅이 가능함.
 </pre>
 
 3. 테스트 영상
@@ -36,7 +41,7 @@ JS
 6. 서버
 
 <pre>PHP
-라이브러리: phpdotenv(환경변수), phpmailer(이메일)
+라이브러리: phpdotenv(환경변수), phpmailer(이메일), monolog(로그 기록)
 </pre>
 
 7. 디비
@@ -54,11 +59,15 @@ JS
 
 - Chrome Browser 112.0.5615.138
 
+- Edge Browser 113.0.1774.42
+
 - XAMPP 8.1.2
 
-- MobaXterm v23.0
+- MobaXterm 23.0
 
 - WinScp 5.21.7
+
+- Postman 10.14.2
 
 </pre>
 
@@ -93,15 +102,6 @@ JS
 13. 프로젝트 구조
 
 ```
-chatting
-├─ .gitignore                 => 깃으로 버전 관리시 필요 없는 데이터는 따로 기록 관리
-├─ assets                     => css, js, img 파일들을 관리
-├─ .htaccess                  => /login.php, /chat.php, /users.php, edit-profile.php로 들어오는 url을
-│                                /views/login.php, /views/chat.php, /views/users.php, /views/edit-profile.php로 보내버림
-├─ assets                     => css, js, img 파일 묶음 폴더
-│  ├─ css
-│  │  └─ style.css            => index.php, user.php, login.php, chat.php의 내부 css 파일 하나로 관리(파일 분리 필요)
-│  ├─ img                     => 회원가입시에 등록한 프로필 이미지가 이 폴더에 저장됨. 사용자 이미지 로드는 이 폴더를 이용함.
 │  └─ js
 │     ├─ chat.js              => chat.php의 채팅 화면에서 발생하는 자바스크립트 동작(비동기로 채팅 데이터 받아오기)
 │     ├─ login.js             => login.php의 로그인 화면에서 발생하는 자바스크립트 동작(비동기로 로그인 작업 실행)
@@ -112,9 +112,6 @@ chatting
 ├─ composer.json              => 프로젝트에 사용한 vlucas/phpdotenv 라이브러리 정리
 ├─ composer.lock              => composer install시 생기는 파일로 composer.json에 기록된
 │                                라이브러리와 연관된 항목과 버전이 기술됨
-├─ db
-│  └─ Database.php            => DB 연동 및 데이터 검색, 입력, 회원가입, 로그인, 로그아웃 등의 모든 디비 작업 모음
-├─ index.php                  => 회원가입 화면
 ├─ php
 │  ├─ data.php                => users.php 화면에서 대화 상대자 목록을 가져오는 php
 │  ├─ delete-message.php      =>
@@ -128,10 +125,6 @@ chatting
 │  ├─ search.php              => users.php 화면에서 검색시 사용자 데이터를 가져오는 php
 │  ├─ signup.php              => 회원가입 창에서 입력한 폼 데이터를 디비와 연동해 INSERT 처리
 │  └─ users.php               => users.php 화면에서 사용자 전체 데이터를 가져오는 php
-├─ README.md                  => 프로젝트에 대한 설명뿐 아니라 사용 방법
-├─ screenshot
-│  └─ databaseTable.png       => 데이터베이스 테이블 구조 화면
-│  └─ play.gif                => 테스트 GIF
 ├─ sql
 │  └─ chatapp.sql             => messages, users 테이블 CREATE 관련 쿼리
 └─ views
@@ -143,29 +136,126 @@ chatting
 
 ```
 
+```
+chatting
+├─ .gitignore                 => 깃으로 버전 관리시 필요 없는 데이터는 따로 기록 관리
+├─ .htaccess                  => /login.php, /chat.php 와 같이 루트 경로 바로 뒤에 오는 페이지를
+│                                /views/login.php, /views/chat.php 와 같이 경로를 views 폴더로 보내버림
+├─ assets                     => css, js, img, favicon, icon 폴더 모음
+│  ├─ css
+│  │  └─ style.css            => index.php, views 폴더 내부의 php 파일들을 style.css 파일 하나로 관리(파일 분리 필요)
+│  ├─ icon
+│  │  ├─ android              => pwa 안드로이드에서 사용하는 아이콘 모음
+│  │  ├─ ios                  => pwa IOS에서 사용하는 아이콘 모음
+│  │  └─ windows11            => pwa windows11에서 사용하는 아이콘 모음
+│  ├─ img
+│  │  ├─ base
+│  │  │  ├─ default.png       => 회원 가입시에 프로필 사진을 선택하지 않는다면 이 기본 이미지가 선택됨.
+│  │  │  └─ talk.png          => 사이트 브랜드 아이콘
+│  │  └─ favicon              => 데스크탑 브라우저 화면에서 사이트를 열었을 시에 탭 화면 타이틀 왼쪽에 나오는 아이콘
+│  ├─ js
+│  │  ├─ auth-code.js
+│  │  ├─ chat.js
+│  │  ├─ edit-profile.js
+│  │  ├─ find-password.js
+│  │  ├─ login.js
+│  │  ├─ pass-show-hide.js
+│  │  ├─ signup.js
+│  │  ├─ users.js
+│  │  └─ verify-password.js
+│  └─ screen.png
+├─ composer.json              => 프로젝트에 사용한 vlucas/phpdotenv 라이브러리 정리
+├─ composer.lock              => composer install시 생기는 파일로 composer.json에 기록된
+│                                라이브러리와 연관된 항목과 버전이 기술됨
+├─ db
+│  ├─ .htaccess               => db 폴더에 url로 직접 접근하지 못하도록 제한 설정한 파일
+│  └─ Database.php            => DB 연동 및 데이터 검색, 입력, 회원가입, 로그인, 로그아웃 등의 모든 디비 작업 모음
+├─ index.php                  => 회원가입 화면(페이지 첫 화면)
+├─ manifest.json              => pwa 연관된 정보 항목이 기록된 json 파일
+├─ offline.html               => 화면이 오프라인이 될 때 실행되는 페이지
+├─ pwabuilder-sw.js           => 화면이 오프라인 상태가 될 시에 offline.html을 화면에 출력
+├─ README.md                  => 프로젝트에 대한 설명 및 사용 방법 등에 대한 기록이 적혀있는 문서
+├─ screenshot
+│  └─ databaseTable.png       => 데이터베이스 테이블 구조 화면
+│  └─ play.gif                => 테스트 GIF
+├─ sql
+│  └─ chatapp.sql             => messages, users, authcode 테이블에 관련된 sql 파일
+├─ user
+│  ├─ auth-code.php
+│  ├─ auth-email.php
+│  ├─ data.php
+│  ├─ delete-message.php
+│  ├─ edit-profile.php
+│  ├─ emailAuthCode-sessionDestroy.php
+│  ├─ find-password.php
+│  ├─ get-chat.php
+│  ├─ get-profile.php
+│  ├─ insert-chat.php
+│  ├─ login.php
+│  ├─ logout.php
+│  ├─ maintain-login.php
+│  ├─ search.php
+│  ├─ signup.php
+│  ├─ users.php
+│  └─ verify-password.php
+└─ views
+   ├─ auth-code.php
+   ├─ chat.php
+   ├─ edit-profile.php
+   ├─ find-password.php
+   ├─ header.php
+   ├─ login.php
+   ├─ users.php
+   └─ verify-password.php
+
+```
+
 14. API 명세서
 
-| Index | Method | URI             | Description |
-| :---: | :----- | :-------------- | :---------- |
-|   1   | POST   | /php/signup.php | 회원가입    |
+| Index | Method | End Point        | 기능     |
+| :---: | :----: | :--------------- | :------- |
+|   1   |  POST  | /user/signup.php | 회원가입 |
 
 <pre>
-• 요청
+• Request (Body)
+
   {
-  "compressedFile": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4g",
-  "name": "조장혁",
-  "email": "chojanghyuk@naver.com",
-  "authCode": "7587843448",
-  "password": "!chojanghyuk123"
+    "compressedFile": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4g",
+    "name": "조장혁",
+    "email": "chojanghyuk@naver.com",
+    "authCode": "7587843448",
+    "password": "!chojanghyuk123"
   }
 
-• 응답
-1) 성공
-{ code : 200, message : 회원 가입 성공 }
+• Response
 
-2) 실패: 이메일 인증 코드 입력 시간이 만료되었을 때
-{ code: 401, message: 인증 코드 입력 시간이 3분이 지났습니다. }
+  [성공]
+  { code : 200, message : 회원 가입 성공 }
 
+  [실패]
+  1) 세션 authCode와 회원가입 화면에서 입력한 입력 코드 값이 다를 때
+  { message: 인증 코드가 다릅니다. }
+
+  2) 이미 디비에 존재하는 이메일을 입력했을 때
+  { message: 이미 존재하는 이메일입니다. }
+</pre>
+
+| Index | Method | End Point                             | 기능                       |
+| :---: | :----: | :------------------------------------ | :------------------------- |
+|   2   | DELETE | user/emailAuthCode-sessionDestroy.php | 이메일 인증 코드 세션 삭제 |
+
+<pre>
+• Response
+
+  [성공]
+  { code: 200, message: 이메일 인증 코드가 성공적으로 삭제되었습니다. }
+
+  [실패]
+  1) 이메일 인증 코드가 세션에 존재하지 않은 상태에서 세션 삭제를 요구할 때
+  { message: 이메일 인증 코드가 존재하지 않아 삭제할 수 없습니다. }
+
+  2) Request Method가 DELETE 요청이 아닐 때
+  { message: DELETE 요청이 아닙니다. }
 </pre>
 
 ### 주의점
@@ -190,7 +280,8 @@ chatting
    압축을 해서 용량을 줄인 뒤에 서버에 올라갈 수 있도록 조치
    </pre>
 
-4. <pre>개인 컴퓨터 윈도우에서 돌릴 땐 잘 돌아가더라도 AWS 서버 컴퓨터에서 우분투 리눅스로
+4. <pre>
+   개인 컴퓨터에서 윈도우로 돌릴 땐 잘 돌아가더라도 AWS 서버 컴퓨터에서 우분투 리눅스로
    돌릴 때 안 되는 부분이 꽤 많다. 뭔가 돌릴 때 안 되면 권한 문제 root 권한이 아니거나
    해당 폴더나 파일의 권한 문제이다.
    (특히 폴더 같은 경우는 상위 폴더에 권한을 부여하면 자동으로 하위 폴더들도 권한이 생길 것이라
@@ -201,7 +292,7 @@ chatting
    파일의 위치가 다르거나 해당 파일이 없기도 한다.
    (파일의 위치가 다르다면 find 명령어로 해당 파일을 찾아서 들어가서 해결하면 되지만
    어떤 경우에는 해당 파일이 없기도 하다. 리눅스의 버전이 다르다거나 리눅스의 종류가 다르다거나
-   php 버전이 다르다거나 하는 다양한 상황이 생기기 때문에 잘 찾아서 해결해야 한다.
+   php 버전이 다르다거나 하는 다양한 상황이 생기기 때문에 잘 찾아서 해결해야 한다.)
    
    시간 문제는
    php는 php.ini 파일을 찾아서 date.timezone = Asia/Seoul 추가한 뒤에 아파치 서버를 재시작하고
@@ -220,7 +311,6 @@ chatting
    
    4. mysql을 다시 실행 시키기 위해서 sudo su 슈퍼유저로 접속 한 후
       그 다음 콘솔에 service mysql restart 해줘서 mysql을 다시 실행시킵니다.
-   )
    </pre>
 
 ### 확인 요망
