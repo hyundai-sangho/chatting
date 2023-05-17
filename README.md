@@ -32,7 +32,9 @@ Edge 브라우저와, Chrome 브라우저를 열고 각각 https://chosangho.sit
 각자 다른 이메일로 회원 가입을 하면 로그인 처리가 되고 대화 상대방을 선택해서 채팅이 가능함.
 </pre>
 
-### [테스트 영상](https://youtu.be/mrMN-qOmRcc) 🔗
+![화면 캡쳐](screenshot/play.png)
+
+### [테스트 영상](https://youtu.be/d1wjxqq0PQ0) 🔗
 
 ### [사이트](https://chosangho.site/) 🔗
 
@@ -54,7 +56,7 @@ PHP
 
 ### 디비
 
-<pre>MySQL</pre>
+<pre>MariaDB</pre>
 
 ### 개발 환경
 
@@ -71,6 +73,11 @@ Chrome Browser 112.0.5615.138
 Edge Browser 113.0.1774.42
 
 XAMPP 8.1.2
+
+- PHP 8.1.2
+- MariaDB 10.4.22
+- Apache/2.4.52
+- phpMyAdmin 5.1.1
 
 MobaXterm 23.0
 
@@ -176,14 +183,14 @@ chatting
 │  ├─ users.php                         => users.php 화면에서 사용자 전체 데이터를 가져오는 php
 │  └─ verify-password.php               => 비밀번호 확인 화면에서 로그인하기 버튼을 누르면 작동하는 php(이름, 이메일 쿠키 제거, 이메일 인증 코드 세션 삭제)
 └─ views
-   ├─ auth-code.php                       => 이메일 인증 코드 화면
-   ├─ chat.php                            => 채팅 화면
-   ├─ edit-profile.php                    => 사용자 프로필 수정 화면
-   ├─ find-password.php                   => 비밀번호 찾기 화면
-   ├─ header.php                          => views 폴더 내부에 php 및 index.php에 들어가는 헤더 부분 font-awesome, style.css, pwa, favicon
-   ├─ login.php                           => 이메일 로그인 화면
-   ├─ users.php                           => 대화 상대방 검색 및 선택 화면
-   └─ verify-password.php                 => 비밀번호 찾기 화면, 이메일 인증 코드 화면을 거쳐서 나오는 비밀번호 확인 화면
+   ├─ auth-code.php                     => 이메일 인증 코드 화면
+   ├─ chat.php                          => 채팅 화면
+   ├─ edit-profile.php                  => 사용자 프로필 수정 화면
+   ├─ find-password.php                 => 비밀번호 찾기 화면
+   ├─ header.php                        => views 폴더 내부에 php 및 index.php에 들어가는 헤더 부분 font-awesome, style.css, pwa, favicon
+   ├─ login.php                         => 이메일 로그인 화면
+   ├─ users.php                         => 대화 상대방 검색 및 선택 화면
+   └─ verify-password.php               => 비밀번호 찾기 화면, 이메일 인증 코드 화면을 거쳐서 나오는 비밀번호 확인 화면
 
 ```
 
@@ -359,10 +366,10 @@ chatting
    XAMPP 8.1.2 버전에 맞춰서 사용하거나 사용하는 php 버전에 맞게 안 되는 부분은 고쳐줄 필요성이 있음.
 
 8. xampp를 설치했다면 php 시간이 한국 시간으로 설정 안 되어있을 수 있기 때문에 XAMPP Control Panel을 열고 Config를 눌른 후에
-  php.ini 파일에 들어가서 date.timezone=Europe/Berlin으로 설정된 부분은 주석 처리를 하고 아래와 같이 Asia/Seoul로 바꿔줘야 함.
+   php.ini 파일에 들어가서 date.timezone=Europe/Berlin으로 설정된 부분은 주석 처리를 하고 아래와 같이 Asia/Seoul로 바꿔줘야 함.
 
-  date.timezone = Asia/Seoul
+   date.timezone = Asia/Seoul
 
-  이렇게 설정을 바꿔주지 않으면 채팅 데이터가 기록되는 시간이
-  한국 시간이 아니라 베를린 시간대로 설정이 되버려서 시간이 엉망이 되버림.
+   이렇게 설정을 바꿔주지 않으면 채팅 데이터가 기록되는 시간이
+   한국 시간이 아니라 베를린 시간대로 설정이 되버려서 시간이 엉망이 되버림.
 </pre>
