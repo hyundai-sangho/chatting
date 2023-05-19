@@ -4,5 +4,5 @@
 # composer install 명령어로 설치가 가능한 폴더이므로 빼버림(용량을 많이 차지함.)
 vendor
 
-# DB 연관 환경변수
+# DB, 이메일 연관 환경 변수
 .env
