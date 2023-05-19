@@ -2,7 +2,7 @@
 
 | 목차                                |                                    |
 | ----------------------------------- | ---------------------------------- |
-| [1. 작성자](#작성자)                | [2. 사이트 사용법](#사이트-사용법) |
+| [1. 작성자-기한](#작성자-기한)      | [2. 사이트 사용법](#사이트-사용법) |
 | [3. 동영상](#동영상)                | [4. 사이트](#사이트)               |
 | [5. 프론트엔드](#프론트엔드)        | [6. 서버](#서버)                   |
 | [7. 디비](#디비)                    | [8. 개발 환경](#개발-환경)         |
@@ -14,13 +14,15 @@
 | [19. 확인 요망](#확인-요망)         | [20. 수정 요망](#수정-요망)        |
 | [21. 디비 사용법](#디비-사용법)     | [22. 소스 사용법](#소스-사용법)    |
 
-### 작성자
+### 작성자-기한
 
 <pre>
 
 - 조상호
 
 - hyundai_sangho@naver.com
+
+- 2023년 5월 1일 ~ 현재 진행 중
 
 </pre>
 
@@ -29,7 +31,7 @@
 <pre>
 혼자서 테스트 할 때는 서로 다른 2개의 브라우저
 Edge 브라우저와, Chrome 브라우저를 열고 각각 https://chosangho.site/ 사이트에 들어가서
-각자 다른 이메일로 회원 가입을 하면 로그인 처리가 되고 대화 상대방을 선택해서 채팅이 가능함.
+각자 다른 이메일로 회원 가입을 하면 로그인 처리가 되고 대화 상대방을 선택해서 채팅이 가능합니다.
 </pre>
 
 ![화면 캡쳐](screenshot/play.png)
@@ -76,12 +78,12 @@ Chrome Browser 112.0.5615.138
 
 Edge Browser 113.0.1774.42
 
-XAMPP 8.1.2
+XAMPP 8.2.4
 
-- PHP 8.1.2
-- MariaDB 10.4.22
-- Apache/2.4.52
-- phpMyAdmin 5.1.1
+- PHP 8.2.4
+- MariaDB 10.4.28
+- Apache/2.4.56
+- phpMyAdmin 5.2.1
 
 MobaXterm 23.0
 
@@ -101,7 +103,12 @@ Postman 10.14.2
 
 aws EC2 (Ubuntu 20.04.6)
 
-Lampp 7.4.29 설치
+Lampp 8.2.4 설치
+
+- PHP 8.2.4
+- MariaDB 10.4.28
+- Apache/2.4.56
+- phpMyAdmin 5.2.1
 
 Route 53 - 고대디에서 구매한 도메인 연결
 
@@ -158,7 +165,7 @@ chatting
 │  └─ Database.php                      => DB 연동 및 데이터 검색, 입력, 회원가입, 로그인, 로그아웃 등의 모든 디비 작업 모음
 ├─ index.php                            => 회원가입 화면(페이지 첫 화면)
 ├─ log
-│  └─ error.log                         => 사이트 이용 중 발생하는 에러 정보들을 기록
+│  └─ info.log                         => 사이트 이용 중 발생하는 에러 정보들을 기록
 ├─ manifest.json                        => pwa 연관된 정보 항목이 기록된 json 파일
 ├─ offline.html                         => 화면이 오프라인이 될 때 실행되는 페이지
 ├─ pwabuilder-sw.js                     => 화면이 오프라인 상태가 될 시에 offline.html을 화면에 출력
@@ -218,14 +225,18 @@ chatting
 • Response
 
   [성공]
-  { code : 200, message : 회원 가입 성공 }
+  {
+    code : '200',
+    message : '회원 가입 성공',
+    location: 'db/Database.php, signUp() 함수'
+  }
 
   [실패]
   1) 세션 authCode와 회원가입 화면에서 입력한 입력 코드 값이 다를 때
-  { message: 인증 코드가 다릅니다. }
+  인증 코드가 다릅니다.
 
   2) 이미 디비에 존재하는 이메일을 입력했을 때
-  { message: 이미 존재하는 이메일입니다. }
+  이미 존재하는 이메일입니다.
 </pre>
 
 | Index | Method | End Point                             | 기능                       |
@@ -236,14 +247,42 @@ chatting
 • Response
 
   [성공]
-  { code: 200, message: 이메일 인증 코드가 성공적으로 삭제되었습니다. }
+  {
+    code: '200',
+    message: '이메일 인증 코드가 성공적으로 삭제되었습니다.',
+    location: 'user/emailAuthCode-sessionDestroy.php'
+  }
 
   [실패]
   1) 이메일 인증 코드가 세션에 존재하지 않은 상태에서 세션 삭제를 요구할 때
-  { message: 이메일 인증 코드가 존재하지 않아 삭제할 수 없습니다. }
+  이메일 인증 코드가 존재하지 않아 삭제할 수 없습니다.
 
   2) Request Method가 DELETE 요청이 아닐 때
-  { message: DELETE 요청이 아닙니다. }
+  DELETE 요청이 아닙니다.
+</pre>
+
+| Index | Method | End Point           | 기능                  |
+| :---: | :----: | :------------------ | :-------------------- |
+|   3   |  POST  | user/auth-email.php | 이메일 인증 코드 발신 |
+
+<pre>
+
+• Request (Body)
+
+  {
+    "name": "조상호",
+    "email": "hyundai_sangho@naver.com"
+  }
+
+• Response
+
+  [성공]
+  {
+    code: '200',
+    message: '이메일 전송 완료.',
+    location: 'user/auth-email.php'
+  }
+
 </pre>
 
 ### 참고 자료
@@ -370,11 +409,16 @@ chatting
 
 6. 크롬 브라우저 실행 후에 주소창에 http://localhost/chatting 입력
 
-7. XAMPP 8.1.2 기준으로 코드를 작성했기 떄문에 실행이 안 되는 부분이 있다면
-   XAMPP 8.1.2 버전에 맞춰서 사용하거나 사용하는 php 버전에 맞게 안 되는 부분은 고쳐줄 필요성이 있음.
+7. XAMPP 8.2.4 기준으로 코드를 작성했기 떄문에 실행이 안 되는 부분이 있다면
+   XAMPP 8.2.4 버전에 맞춰서 사용하거나 사용하는 php 버전에 맞게 안 되는 부분은 고쳐줄 필요성이 있음.
 
-8. xampp를 설치했다면 php 시간이 한국 시간으로 설정 안 되어있을 수 있기 때문에 XAMPP Control Panel을 열고 Config를 눌른 후에
-   php.ini 파일에 들어가서 date.timezone=Europe/Berlin으로 설정된 부분은 주석 처리를 하고 아래와 같이 Asia/Seoul로 바꿔줘야 함.
+   컴포저로 설치한 php 라이브러리 같은 경우에는 php 버전에 따라 안 될 수 있으니
+   php 버전을 바꾸던가 내가 설치한 php 버전에 맞게 라이브러리 버전을 변경할 필요가 있음
+
+8. xampp를 설치했다면 php 시간이 한국 시간으로 설정 안 되어있을 수 있기 때문에
+   XAMPP Control Panel을 열고 Config를 눌른 후에 php.ini 파일에 들어가서
+   date.timezone=Europe/Berlin으로 설정된 부분은 주석 처리를 하고
+   아래와 같이 Asia/Seoul로 바꿔줘야 함.
 
    date.timezone = Asia/Seoul
 
