@@ -1,5 +1,6 @@
 <!-- 헤더 -->
-<?php require_once 'views/header.php'; ?>
+<!-- 기본 css, font-awesome, pwa manifest.json 포함 -->
+<?php include_once 'views/header.php'; ?>
 <!-- 헤더 -->
 
 <?php
@@ -60,13 +61,15 @@ if (isset($_SESSION['unique_id'])) {
         <div class="field button">
           <input type="submit" value="회원 가입" />
         </div>
-
       </form>
 
-      <div class="link">이미 가입했다면? <a href="login.php">로그인</a></div>
+      <div class=" link">이미 가입했다면? <a href="login.php">로그인</a>
+      </div>
     </section>
 
+    <!-- 비밀번호 부분의 눈알 클릭시 동작 -->
     <script src="assets/js/pass-show-hide.js"></script>
+    <!-- 회원 가입 버튼 클릭시 일어나는 동작 -->
     <script src="assets/js/signup.js"></script>
     </script>
   </div>
