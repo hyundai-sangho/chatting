@@ -84,9 +84,6 @@ signupImageFile.addEventListener('change', async () => {
 	}
 });
 
-/* // 이메일 인증 코드 오른쪽 부분에 시간 표시 출력
-emailAuthenticationTimerText.innerText = '시간'; */
-
 // 인증 시간 타이머 구현
 class AuthEmailTimer {
 	constructor() {
@@ -126,7 +123,9 @@ class AuthEmailTimer {
 		clearInterval(this.timerInterval);
 
 		// 이메일 인증 코드 세션 변수 제거
-		fetch('php/emailAuthCode-sessionDestroy.php');
+		fetch('user/emailAuthCode-sessionDestroy.php', {
+			method: 'DELETE',
+		});
 
 		emailAuthenticationTimerText.innerText = '만료';
 
@@ -147,11 +146,14 @@ emailAuthentication.addEventListener('click', async (event) => {
 			let AuthTimer = new AuthEmailTimer();
 			AuthTimer.start();
 
-			emailAuthenticationTimerText.innerText = '';
+			swal('이메일 전송 완료', '이메일을 확인해 주세요.', 'success');
 
-			await fetch('php/auth-email.php', {
+			await fetch('user/auth-email.php', {
 				method: 'POST',
-				body: new FormData(form),
+				body: JSON.stringify({
+					name: signupName.value,
+					email: signupEmail.value,
+				}),
 			})
 				.then((response) => response.text())
 				.then((data) => {
@@ -175,15 +177,8 @@ form.addEventListener('submit', async (event) => {
 	// 이벤트가 발생하는 것을 방지해서 폼 값이 넘어가는 것을 막고
 	event.preventDefault();
 
-	let formData = new FormData();
-	formData.append('compressedFile', compressedFile);
-	formData.append('name', signupName.value);
-	formData.append('email', signupEmail.value);
-	formData.append('authCode', signupAuthCode.value);
-	formData.append('password', signupPassword.value);
-
-	// 비동기로 php/signup.php 파일로 POST로 폼 데이터에 form 값들을 집어넣어 보내버림
-	await fetch('php/signup.php', {
+	// 비동기로 user/signup.php 파일로 POST로 폼 데이터에 form 값들을 집어넣어 보내버림
+	await fetch('user/signup.php', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -198,27 +193,13 @@ form.addEventListener('submit', async (event) => {
 	})
 		.then((response) => response.text())
 		.then((data) => {
-			console.log(
-				JSON.stringify({
-					compressedFile: compressedFile,
-					name: signupName.value,
-					email: signupEmail.value,
-					authCode: signupAuthCode.value,
-					password: signupPassword.value,
-				})
-			);
 			console.log(data);
-			// "성공" 메시지가 날라오면 회원가입이 제대로 됐다는 의미이므로
+			// "회원 가입 성공" 메시지가 날라오면 회원가입이 제대로 됐다는 의미이므로
 			// 대화 상대방을 고를 수 있는 users.php로 보내버림
-			if (data === '회원가입 성공') {
+			if (data.includes('회원 가입 성공')) {
 				location.href = 'users.php';
-			} else if (data === '인증코드 입력 시간 3분이 지났습니다.') {
-				errorText.innerHTML = '인증코드 입력 시간 3분이 지났습니다.<br>이메일 인증을 다시 해주시길 바랍니다.';
-				errorText.style.display = 'block';
-
-				emailAuthentication.innerText = '재인증';
 			}
-			// "성공"이 아니라면 에러 메시지를 받아와서 화면에 보여줌
+			// "회원 가입 성공"이 아니라면 에러 메시지를 받아와서 화면에 보여줌
 			else {
 				errorText.innerHTML = data;
 				errorText.style.display = 'block';
