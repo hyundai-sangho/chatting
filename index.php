@@ -67,6 +67,8 @@ if (isset($_SESSION['unique_id'])) {
       </div>
     </section>
 
+    <!-- Sweet Alert 팝업 -->
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <!-- 비밀번호 부분의 눈알 클릭시 동작 -->
     <script src="assets/js/pass-show-hide.js"></script>
     <!-- 회원 가입 버튼 클릭시 일어나는 동작 -->
