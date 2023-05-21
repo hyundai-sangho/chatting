@@ -442,9 +442,9 @@ chatting
 
 11. echo 출력 부분 중에 info.log에 입력할 필요가 있는 부분은 수정 필요함
 
-12. js 파일에서 php 파일 fetch 요청시 body 값을 FormData 대신에 json 데이터로 변동
+12. php Unit Test 추가
 
-13. php Unit Test 추가
+13. 클래스 및 함수에 유형 선언 추가하기
 </pre>
 
 ### 디비 사용법
