@@ -465,9 +465,9 @@ form .name-details .field:first-child {
 	cursor: pointer;
 }
 
-#myImageCloseIcon:hover {
+/* #myImageCloseIcon:hover {
 	scale: 0.9;
-}
+} */
 
 #myImageCloseIcon:active {
 	color: red;
@@ -477,17 +477,17 @@ form .name-details .field:first-child {
 	transition: all 0.2s ease;
 }
 
-.myImageCloseIcon:hover {
+/* .myImageCloseIcon:hover {
 	scale: 0.9;
 }
-
-.myImageCloseIcon:active {
+ */
+/* .myImageCloseIcon:active {
 	color: red;
-}
+} */
 
-.chatPhotoImage:hover {
+/* .chatPhotoImage:hover {
 	scale: 1.5;
-}
+} */
 
 /* users.php */
 /* 햄버거 자식 버튼 */
