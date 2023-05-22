@@ -2,10 +2,11 @@
 
 require_once '../db/Database.php';
 
-if ($_COOKIE['name'] && $_COOKIE['email']) {
+if ($_COOKIE['email']) {
 
   $database = new Database();
-  $resultPassword = $database->getUsersDataByNameAndEMail($_COOKIE['name'], $_COOKIE['email']);
+  $resultPassword = $database->getDataByEmail($_COOKIE['email']);
+  $resultPassword = $resultPassword['password'];
 
   if ($resultPassword) {
 
@@ -43,6 +44,7 @@ if ($_COOKIE['name'] && $_COOKIE['email']) {
 
 
 <!-- 헤더 -->
+<!-- 기본 css, font-awesome, pwa manifest.json 포함 -->
 <?php require_once 'header.php'; ?>
 <!-- 헤더 -->
 
