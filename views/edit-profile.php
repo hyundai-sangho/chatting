@@ -50,6 +50,7 @@ $database->connectionClose();
 ?>
 
 <!-- 헤더 -->
+<!-- 기본 css, font-awesome, pwa manifest.json 포함 -->
 <?php require_once 'header.php'; ?>
 <!-- 헤더 -->
 
@@ -67,17 +68,17 @@ $database->connectionClose();
         <div class="name-details">
           <div class="field input">
             <label>이름</label>
-            <input type="text" name="name" placeholder="홍길동" id="editProfileName" value="<?= $result['name'] ?>" required />
+            <input type="text" placeholder="홍길동" id="editProfileName" value="<?= $result['name'] ?>" required />
           </div>
         </div>
 
         <div class=" field input">
           <label>이메일</label>
-          <input type="text" name="email" placeholder="example@naver.com" id="editProfileEmail" value="<?= $result['email'] ?>" required />
+          <input type="text" placeholder="example@naver.com" id="editProfileEmail" value="<?= $result['email'] ?>" required />
         </div>
         <div class="field input">
           <label>비밀번호</label>
-          <input type="password" name="password" id="editProfilePassword" value="<?= $descryptedPassword ?>" required />
+          <input type="password" id="editProfilePassword" class="password" value="<?= $descryptedPassword ?>" required />
           <i class="fas fa-eye"></i>
         </div>
 
