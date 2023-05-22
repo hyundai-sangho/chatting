@@ -6,9 +6,9 @@ const errorText = form.querySelector('.error-txt');
 
 const editUserChatIcon = document.querySelector('#editUserChatIcon');
 
-const editProfileName = document.querySelector('#editProfileName').value;
-const editProfileEmail = document.querySelector('#editProfileEmail').value;
-const editProfilePassword = document.querySelector('#editProfilePassword').value;
+const editProfileName = document.querySelector('#editProfileName');
+const editProfileEmail = document.querySelector('#editProfileEmail');
+const editProfilePassword = document.querySelector('#editProfilePassword');
 const editProfileImage = document.querySelector('#editProfileImage');
 
 let compressedFile;
@@ -82,16 +82,16 @@ form.addEventListener('submit', async (event) => {
 	event.preventDefault();
 
 	// 비동기로
-	// php/signup.php 파일로 POST로 폼 데이터에 form 값들을 집어넣어 보내버림
-	await fetch('php/edit-profile.php', {
+	// user/signup.php 파일로 POST로 폼 데이터에 form 값들을 집어넣어 보내버림
+	await fetch('user/edit-profile.php', {
 		method: 'PUT',
 		headers: {
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
-			name: editProfileName,
-			email: editProfileEmail,
-			password: editProfilePassword,
+			name: editProfileName.value,
+			email: editProfileEmail.value,
+			password: editProfilePassword.value,
 			image: compressedFile,
 		}),
 	})
