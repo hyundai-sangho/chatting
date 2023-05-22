@@ -1,4 +1,5 @@
 <!-- 헤더 -->
+<!-- 기본 css, font-awesome, pwa manifest.json 포함 -->
 <?php require_once 'header.php'; ?>
 <!-- 헤더 -->
 
@@ -16,13 +17,13 @@
         <div class="name-details">
           <div class="field input">
             <label>이름</label>
-            <input type="text" name="name" placeholder="홍길동" required />
+            <input type="text" placeholder="홍길동" id="findPasswordName" required />
           </div>
         </div>
 
         <div class=" field input">
           <label>이메일</label>
-          <input type="text" name="email" placeholder="example@naver.com" required />
+          <input type="text" placeholder="example@naver.com" id="findPasswordEmail" required />
         </div>
 
         <div class="field button">
@@ -36,5 +37,3 @@
   <script src="assets/js/find-password.js"></script>
 </body>
 </html>
-
-~
