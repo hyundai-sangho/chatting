@@ -1,11 +1,22 @@
 <?php
 
+
 /* php dotenv 사용을 위해 vendor 폴더 내부의 autoload.php require 함. */
 require_once "../vendor/autoload.php";
 
 /* php dotenv 사용법 */
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
+
+/* monolog 추가 */
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+
+// 로거 채널 생성
+$log = new Logger('chatSite');
+
+// log/info.log 파일에 로그 생성. 로그 레벨은 INFO
+$log->pushHandler(new StreamHandler('../log/info.log', Logger::INFO));
 
 /**
  * Database 클래스
@@ -141,6 +152,8 @@ class Database
    */
   public function getAllData()
   {
+    session_start();
+
     // users 테이블의 전체 데이터 가져오기 SQL
     $sql = "SELECT * FROM users WHERE NOT unique_id = :uniqueId";
 
@@ -163,9 +176,12 @@ class Database
     // 다른 사용자도 화면에 나타나게 함.
     if ($row_count == 0) {
       $output .= '대화 가능한 상대가 없네요.';
+
+
     } elseif ($row_count >= 1) {
-      require_once '../php/data.php';
+      include_once '../user/data.php';
     }
+
     // $output 등록된 데이터 화면에 출력
     echo $output;
   }
@@ -178,8 +194,6 @@ class Database
   {
     // 세션 사용
     session_start();
-
-
 
     function password_crypt($string, $action = 'e') // $action 값은 기본값을 e(ncryted)로 한다.
     {
@@ -199,12 +213,6 @@ class Database
 
       return $output;
     }
-
-
-
-
-
-
 
     // $email, $password 변수에 값이 없다면 "모든 입력 필드가 필요합니다." 출력
     if (!empty($email) && !empty($password)) {
@@ -270,7 +278,7 @@ class Database
     $output = '';
 
     if ($row_count >= 1) {
-      require_once '../php/data.php';
+      include_once '../user/data.php';
     } elseif ($row_count == 0) {
       $output .= "검색어와 관련된 사용자가 없습니다.";
     }
@@ -283,6 +291,7 @@ class Database
    */
   public function signUp($name, $email, $password, $imageFile)
   {
+    global $log;
 
     $sql = "SELECT * FROM users WHERE email = :email";
     $result = $this->connection()->prepare($sql);
@@ -294,7 +303,8 @@ class Database
     // 회원가입 창에서 입력한 이메일과 같은 이메일이 디비에 존재한다면
     // "이미 존재하는 이메일입니다." 화면에 출력
     if ($row_count > 0) {
-      echo "{$email}은 이미 존재하는 이메일입니다.";
+      $log->info("{ message: '이미 존재하는 이메일입니다.', location: 'db/Database.php, signUp() 함수' }");
+      echo "{ message: 이미 존재하는 이메일입니다. }";
     }
 
     // 같은 이메일이 없다면 디비에 저장
@@ -322,8 +332,10 @@ class Database
 
         $result2->execute();
 
+        $insertRowCount = $result2->rowCount();
+
         // 회원정보 데이터를 입력하고 가입한 이메일로 다시 쿼리로 돌려보면서 제대로 디비에 들어갔는지 확인
-        if ($result2) {
+        if ($insertRowCount > 0) {
           $sql3 = "SELECT * FROM users WHERE email = :email";
           $result3 = $this->connection()->prepare($sql3);
           $result3->bindParam(':email', $email);
@@ -335,14 +347,18 @@ class Database
           if ($row_count2 > 0) {
             $row = $result3->fetch(PDO::FETCH_ASSOC);
 
+
             // 여기까지 왔다면 회원 데이터가 제대로 디비에 저장이 되고
             // 세션 unique_id에 디비에서 받아온 unique_id 값 저장
             $_SESSION['unique_id'] = $row['unique_id'];
 
+
+
             // 회원가입 완료 후 세션 authCode 제거(이메일 인증코드)
             unset($_SESSION['authCode']);
 
-            echo "{ code : 200, message : 회원 가입 성공 }";
+            http_response_code(200);
+            echo "{ code : '200', message : '회원 가입 성공', location: 'db/Database.php, signUp() 함수'  }";
             exit;
           }
         }
@@ -356,7 +372,7 @@ class Database
         // 랜덤 숫자 구하기
         $random_id = rand(time(), 10000000);
 
-        $sql2 = "INSERT INTO users (unique_id, name, email, password, img, status ) VALUES (:random_id, :name, :email, :password, :new_img_name, :status)";
+        $sql2 = "INSERT INTO users (unique_id, name, email, password, img, status ) VALUES (:random_id, :name, :email, :password, :img, :status)";
 
         $result2 = $this->connection()->prepare($sql2);
 
@@ -364,13 +380,14 @@ class Database
         $result2->bindParam(':name', $name);
         $result2->bindParam(':email', $email);
         $result2->bindParam(':password', $password);
-        // $result2->bindParam(':new_img_name', $new_img_name);
-        $result2->bindParam(':new_img_name', $imageFile);
+        $result2->bindParam(':img', $imageFile);
         $result2->bindParam(':status', $status);
 
         $result2->execute();
 
-        if ($result2) {
+        $insertRowCount = $result2->rowCount();
+
+        if ($insertRowCount > 0) {
           $sql3 = "SELECT * FROM users WHERE email = :email";
           $result3 = $this->connection()->prepare($sql3);
           $result3->bindParam(':email', $email);
@@ -388,7 +405,8 @@ class Database
             // 회원가입 완료 후 세션 authCode 제거(이메일 인증코드)
             unset($_SESSION['authCode']);
 
-            echo "{ code : 200, message : 회원 가입 성공 }";
+            http_response_code(200);
+            echo "{ code : '200', message : '회원 가입 성공', location: 'db/Database.php, signUp() 함수'  }";
           }
         }
 
@@ -402,7 +420,7 @@ class Database
    */
   public function getDataByEmail($email)
   {
-    $sql = "SELECT * FROM users WHERE email = :email";
+    $sql = "SELECT * FROM users WHERE email = :email LIMIT 1";
     $result = $this->connection()->prepare($sql);
     $result->bindParam(':email', $email);
     $result->execute();
@@ -415,6 +433,7 @@ class Database
 
     // 메시지가 비어있지 않다면 => 메시지가 있다면
     if (!empty($message)) {
+
       try {
         $sql = "INSERT INTO messages (msg, outgoing_msg_id, incoming_msg_id) VALUES (:message, :outgoing_id, :incoming_id)";
         $result = $this->connection()->prepare($sql);
@@ -429,7 +448,7 @@ class Database
           echo "성공";
         }
       } catch (PDOException $e) {
-        echo "메시지 업로드 중 getDataByMessageAndOutgoingIdAndIncomingId() 함수 INSERT 쿼리 실패";
+        echo "메시지 업로드 중 getDataByMessageAndOutgoingIdAndIncomingId() 함수 INSERT 쿼리 실패" . $e->getMessage();
       }
 
       // 메시지가 비었다면 => 즉, 사진 파일을 올렸다면(사진 파일을 올릴 시에는 텍스트는 삽입 안 함.)
@@ -445,7 +464,7 @@ class Database
 
         echo "성공";
       } catch (PDOException $e) {
-        echo "사진 업로드 중 getDataByMessageAndOutgoingIdAndIncomingId() 함수 INSERT 쿼리 실패";
+        echo "사진 업로드 중 getDataByMessageAndOutgoingIdAndIncomingId() 함수 INSERT 쿼리 실패" . $e->getMessage();
       }
     }
   }
@@ -522,13 +541,17 @@ class Database
                                   <div class='details'>
                                     <span style='position: relative; left: -70px; top: 30px;'>$msgTime</span>
                                     <i id='myImageCloseIcon' class='fas fa-times myImageCloseIcon' onclick='deleteMessage($row[msg_id])'></i>
-                                    <img src='$row[msg_image]' style='width: 100%; object-fit: cover; border-radius: 5px;' class='chatPhotoImage'>
+                                    <img src='$row[msg_image]' style='width: 100%; object-fit: cover; border-radius: 5px;'>
 
-                                    <a href='$row[msg_image]' download style='position: relative; top: -30px; left: -70px;'><button style='cursor: pointer;'>다운로드</button></a>
+                                    <a href='$row[msg_image]' download style='position: relative; top: -30px; left: -70px;'>
+                                      <button style='cursor: pointer;'>
+                                        다운로드
+                                      </button>
+                                    </a>
 
                                     <span id='myImgDiffDay'>$diff</span>
 
-                                    </div>
+                                  </div>
                                 </div>";
           } else {
             $output .= "<div class='chat outgoing'>
@@ -546,25 +569,33 @@ class Database
           if ($row['msg_image']) {
             if (isset($diff)) {
               $output .= "<div class='chat incoming'>
-                                    <img src='assets/img/$row[img]' alt='프로필 사진' />
+                                    <img src='$row[img]' alt='프로필 사진' />
 
                                     <div class='details' style='position: relative;'>
-                                      <img src='assets/img/$row[msg_image]' style='margin-left: 10px; width: 200px; height: 200px; object-fit: cover; border-radius: 5px;' class='chatPhotoImage'>
+                                      <img src='$row[msg_image]' style='margin-left: 10px; width: 200px; height: 200px; object-fit: cover; border-radius: 5px;'>
                                       <span style='position: absolute; left: 220px; top: 10px; width: 50%;'>$msgTime</span>
 
-                                      <a href='assets/img/$row[msg_image]' download><button style='position:relative; left: 220px; top: -25px; cursor: pointer;'>다운로드</button></a>
+                                      <a href='$row[msg_image]' download>
+                                        <button style='position:relative; left: 220px; top: -25px; cursor: pointer;'>
+                                          다운로드
+                                        </button>
+                                      </a>
                                       <span style='position: relative; top: 1px; left: -50px; color: red; font-weight: bold'>$diff</span>
                                     </div>
                                   </div>";
             } else {
               $output .= "<div class='chat incoming'>
-                                  <img src='assets/img/$row[img]' alt='프로필 사진' />
+                                  <img src='$row[img]' alt='프로필 사진' />
 
                                     <div class='details' style='position: relative;'>
-                                      <img src='assets/img/$row[msg_image]' style='margin-left: 10px; width: 200px; height: 200px; object-fit: cover; border-radius: 5px;' class='chatPhotoImage'>
+                                      <img src='$row[msg_image]' style='margin-left: 10px; width: 200px; height: 200px; object-fit: cover; border-radius: 5px;'>
                                       <span style='position: absolute; left: 220px; top: 10px; width: 50%;'>$msgTime</span>
 
-                                      <a href='assets/img/$row[msg_image]' download><button style='position:relative; left: 220px; top: -25px; cursor: pointer;'>다운로드</button></a>
+                                      <a href='$row[msg_image]' download>
+                                        <button style='position:relative; left: 220px; top: -25px; cursor: pointer;'>
+                                          다운로드
+                                        </button>
+                                      </a>
                                     </div>
                                   </div>";
             }
@@ -572,7 +603,7 @@ class Database
 
           } else {
             $output .= "<div class='chat incoming'>
-                                  <img src='assets/img/$row[img]' alt='프로필 사진' />
+                                  <img src='$row[img]' alt='프로필 사진' />
                                   <div class='details'>
                                     <span style='position: relative; left: 210px; top: 30px;'>$msgTime</span>
                                     <p> $rowMsg </p>
@@ -696,21 +727,7 @@ class Database
   }
 
 
-  public function getUsersDataByNameAndEMail($name, $email)
-  {
-    $sql = "SELECT * FROM users WHERE name = :name AND email = :email;";
-    $result = $this->connection()->prepare($sql);
-    $result->bindParam(':name', $name);
-    $result->bindParam(':email', $email);
-    $result->execute();
 
-    $row_count = $result->rowCount();
-
-    if ($row_count > 0) {
-      $row = $result->fetch(PDO::FETCH_ASSOC);
-      return $row['password'];
-    }
-  }
 
   public function getData_passwordFindTable_randomString()
   {
@@ -725,6 +742,34 @@ class Database
       return $row['randomString'];
     }
   }
+
+
+  public function getUsersDataByEmailAndPassword($email, $password)
+  {
+    global $log;
+
+    try {
+      $sql = "SELECT * FROM users WHERE email = :email AND password = :password";
+      $result = $this->connection()->prepare($sql);
+      $result->bindParam(':email', $email);
+      $result->bindParam(':password', $password);
+      $result->execute();
+
+      $row_count = $result->rowCount();
+
+      if ($row_count > 0) {
+        $row = $result->fetch(PDO::FETCH_ASSOC);
+        return $row;
+      }
+    } catch (Exception $e) {
+      $log->info("{ message: " . $e->getMessage() . ", location: 'db/Database.php' }");
+
+      echo $e->getMessage();
+    }
+
+  }
+
+
 
   /**
    * 커넥션 끊기
