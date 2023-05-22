@@ -9,14 +9,18 @@ const chatHeaderProfile = document.querySelector('#header');
 
 const messageSendButton = document.querySelector('#messageSendButton');
 
-const pictureImage = document.querySelector('#pictureImage');
+const chatUploadImage = document.querySelector('#chatUploadImage');
 
+// 채팅 화면 views/chat.php의 input file창
 const chatImage = document.querySelector('#chatImage');
+// 채팅 메시지 발신 ID
 const outgoingId = document.querySelector('#outgoingId');
+// 채팅 메시지 수신 ID
 const incomingId = document.querySelector('#incomingId');
+// 채팅 메시지
 const chatMessage = document.querySelector('#chatMessage');
 
-pictureImage.addEventListener('click', (event) => {
+chatUploadImage.addEventListener('click', (event) => {
 	event.preventDefault();
 
 	chatImage.click();
@@ -29,22 +33,28 @@ let isChatBoxScrolled = true;
 let el = $('.chattingMessage').emojioneArea({});
 
 /**
- * php/get-chat.php에 비동기로 데이터 요청
+ * user/get-chat.php에 비동기로 데이터 요청
  */
 const run = async () => {
 	// 사용자 데이터 가져오기 전까지 로딩 이미지 화면에 출력
 	chatHeaderProfile.innerHTML = "<div style='margin: 0 auto;'><img style='width: 200px; border-radius: 10px;' src='https://media1.giphy.com/media/KG4PMQ0jyimywxNt8i/giphy.gif?cid=ecf05e47sjwb5je4u2vmqy7ise7yg74au85dbxrbw2uujg5a&ep=v1_gifs_search&rid=giphy.gif&ct=g'></div>";
 
-	await fetch('php/get-chat.php', {
+	await fetch('user/get-chat.php', {
 		method: 'POST',
-		body: new FormData(form),
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			outgoingId: outgoingId.value,
+			incomingId: incomingId.value,
+		}),
 	})
 		.then((response) => response.text())
 		.then((data) => {
 			chatBox.innerHTML = data;
 		});
 
-	await fetch('php/get-profile.php')
+	await fetch('user/get-profile.php')
 		.then((response) => response.text())
 		.then((data) => {
 			chatHeaderProfile.innerHTML = data;
@@ -112,10 +122,10 @@ let insertChat = async () => {
 					ctx.drawImage(e.target, 0, 0);
 
 					// 용량이 줄어든 base64 이미지
-					console.log(canvas.toDataURL(`image/jpeg`, 0.5));
+					// console.log(canvas.toDataURL(`image/jpeg`, 0.5));
 					compressedFile = canvas.toDataURL(`image/jpeg`, 0.5);
 
-					await fetch('php/insert-chat.php', {
+					await fetch('user/insert-chat.php', {
 						method: 'POST',
 						headers: {
 							'Content-Type': 'application/json',
@@ -151,7 +161,7 @@ let insertChat = async () => {
 		// trim() 함수를 이용해 공백을 제거해주지 않으면 아무것도 안 썼지만 공백이 포함돼
 		// 값이 넘어가버린다.
 		if (el[0].emojioneArea.getText().trim() !== '') {
-			await fetch('php/insert-chat.php', {
+			await fetch('user/insert-chat.php', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -187,9 +197,15 @@ messageSendButton.addEventListener('click', (event) => {
 });
 
 let getChatAndProfileData = async () => {
-	await fetch('php/get-chat.php', {
+	await fetch('user/get-chat.php', {
 		method: 'POST',
-		body: new FormData(form),
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			outgoingId: outgoingId.value,
+			incomingId: incomingId.value,
+		}),
 	})
 		.then((response) => response.text())
 		.then((data) => {
@@ -200,13 +216,15 @@ let getChatAndProfileData = async () => {
 			}
 		});
 
-	await fetch('php/get-profile.php')
+	// 대화 상대방의 채팅 프로필 접속 상태(접속/비접속)를 확인
+	await fetch('user/get-profile.php')
 		.then((response) => response.text())
 		.then((data) => {
 			chatHeaderProfile.innerHTML = data;
 		});
 };
 
+// 500ms 간격으로 getChatAndProfileData() 함수 호출
 setInterval(async () => {
 	await getChatAndProfileData();
 }, 500);
@@ -220,7 +238,7 @@ function scrollTopBottom() {
 }
 
 const deleteMessage = async (messageId) => {
-	await fetch('php/delete-message.php', {
+	await fetch('user/delete-message.php', {
 		method: 'DELETE',
 		headers: {
 			'Content-Type': 'application/json',
