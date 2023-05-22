@@ -15,7 +15,7 @@ if (isset($_SESSION['unique_id'])) {
 if (isset($_COOKIE['email'])) {
   $email = $_COOKIE['email'];
 
-  require_once '../db/Database.php';
+  include_once '../db/Database.php';
 
   $database = new Database();
   // 쿠키로 저장되어 있는 이메일을 토대로 디비에 사용자가 존재하는지 확인
@@ -54,9 +54,11 @@ if (isset($_COOKIE['email'])) {
   $database->connectionClose();
 }
 
+
 ?>
 
 <!-- 헤더 -->
+<!-- 기본 css, font-awesome, pwa manifest.json 포함 -->
 <?php require_once 'header.php'; ?>
 <!-- 헤더 -->
 
@@ -67,17 +69,18 @@ if (isset($_COOKIE['email'])) {
       <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #ccc;">
         <header>로그인</header> <img src="assets/img/base/talk.png" alt="채팅 아이콘" style="width: 35px; height: 35px; border-radius: 5px;">
       </div>
-      <form action="#">
+
+      <form action="#" autocomplete="off">
         <div class="error-txt"></div>
 
         <div class="field input">
           <label>이메일</label>
-          <input type="text" name="email" placeholder="example@naver.com" value="<?= $result['email'] ?? '' ?>" />
+          <input type="text" placeholder="example@naver.com" value="<?= $result['email'] ?? '' ?>" id="loginEmail" required />
         </div>
         <div class="field input">
           <label>비밀번호</label>
-          <input type="password" name="password" id="password" value="<?= $descryptedPassword ?? '' ?>" />
-          <i class="fas fa-eye" class="eyePassword"></i>
+          <input type="password" class="password" value="<?= $descryptedPassword ?? '' ?>" id="loginPassword" required />
+          <i class="fas fa-eye"></i>
         </div>
 
 
@@ -96,9 +99,10 @@ if (isset($_COOKIE['email'])) {
         </div>
 
         <div class="field button">
-          <input type="submit" value="로그인" />
+          <input type="submit" value="이메일 로그인" />
         </div>
       </form>
+
       <div class="link">회원가입 안 했다면? <a href="index.php">회원가입</a></div>
     </section>
 
