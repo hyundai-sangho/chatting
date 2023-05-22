@@ -15,7 +15,11 @@ const signupImageFile = document.querySelector('#signupImageFile');
 const signupName = document.querySelector('#signupName');
 const signupEmail = document.querySelector('#signupEmail');
 const signupAuthCode = document.querySelector('#signupAuthCode');
-const signupPassword = document.querySelector('#password');
+const signupPassword = document.querySelector('#signupPassword');
+
+const signupPrivacyCheckbox = document.querySelector('#signupPrivacyCheckbox');
+
+const signupImage = document.querySelector('#signupImage');
 
 let compressedFile;
 
@@ -68,8 +72,11 @@ signupImageFile.addEventListener('change', async () => {
 					ctx.drawImage(e.target, 0, 0);
 
 					// 용량이 줄어든 base64 이미지
-					console.log(canvas.toDataURL(`image/jpeg`, 0.5));
+					// console.log(canvas.toDataURL(`image/jpeg`, 0.5));
 					compressedFile = canvas.toDataURL(`image/jpeg`, 0.5);
+
+					signupImage.src = compressedFile;
+					signupImage.style.display = 'block';
 				};
 			};
 
@@ -150,6 +157,9 @@ emailAuthentication.addEventListener('click', async (event) => {
 
 			await fetch('user/auth-email.php', {
 				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
 				body: JSON.stringify({
 					name: signupName.value,
 					email: signupEmail.value,
@@ -177,32 +187,36 @@ form.addEventListener('submit', async (event) => {
 	// 이벤트가 발생하는 것을 방지해서 폼 값이 넘어가는 것을 막고
 	event.preventDefault();
 
-	// 비동기로 user/signup.php 파일로 POST로 폼 데이터에 form 값들을 집어넣어 보내버림
-	await fetch('user/signup.php', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			compressedFile: compressedFile,
-			name: signupName.value,
-			email: signupEmail.value,
-			authCode: signupAuthCode.value,
-			password: signupPassword.value,
-		}),
-	})
-		.then((response) => response.text())
-		.then((data) => {
-			console.log(data);
-			// "회원 가입 성공" 메시지가 날라오면 회원가입이 제대로 됐다는 의미이므로
-			// 대화 상대방을 고를 수 있는 users.php로 보내버림
-			if (data.includes('회원 가입 성공')) {
-				location.href = 'users.php';
-			}
-			// "회원 가입 성공"이 아니라면 에러 메시지를 받아와서 화면에 보여줌
-			else {
-				errorText.innerHTML = data;
-				errorText.style.display = 'block';
-			}
-		});
+	if (signupPrivacyCheckbox.checked == true) {
+		// 비동기로 user/signup.php 파일로 POST로 폼 데이터에 form 값들을 집어넣어 보내버림
+		await fetch('user/signup.php', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				compressedFile: compressedFile,
+				name: signupName.value,
+				email: signupEmail.value,
+				authCode: signupAuthCode.value,
+				password: signupPassword.value,
+			}),
+		})
+			.then((response) => response.text())
+			.then((data) => {
+				console.log(data);
+				// "회원 가입 성공" 메시지가 날라오면 회원가입이 제대로 됐다는 의미이므로
+				// 대화 상대방을 고를 수 있는 users.php로 보내버림
+				if (data.includes('회원 가입 성공')) {
+					location.href = 'users.php';
+				}
+				// "회원 가입 성공"이 아니라면 에러 메시지를 받아와서 화면에 보여줌
+				else {
+					errorText.innerHTML = data;
+					errorText.style.display = 'block';
+				}
+			});
+	} else {
+		alert('개인 정보 이용 약관에 동의해주세요.');
+	}
 });

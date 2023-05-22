@@ -16,7 +16,7 @@ let run = async () => {
 	userList.innerHTML = "<div style='text-align: center;'><img style='width: 200px; border-radius: 10px;' src='https://media1.giphy.com/media/KG4PMQ0jyimywxNt8i/giphy.gif?cid=ecf05e47sjwb5je4u2vmqy7ise7yg74au85dbxrbw2uujg5a&ep=v1_gifs_search&rid=giphy.gif&ct=g'></div>";
 
 	// users.php에서 사용자 데이터 가져와 화면에 뿌려줌.
-	await fetch('php/users.php')
+	await fetch('user/users.php')
 		.then((response) => response.text())
 		.then((data) => {
 			userList.innerHTML = data;
@@ -26,14 +26,16 @@ let run = async () => {
 // 화면 로드시 실행
 run();
 
-// 검색어를 입력하면 php/search.php 에서 사용자 데이터를 가져와 화면에 뿌려줌.
+// 검색어를 입력하면 user/search.php 에서 사용자 데이터를 가져와 화면에 뿌려줌.
 let searchUser = async (searchTerm) => {
-	await fetch('php/search.php', {
+	await fetch('user/search.php', {
 		method: 'POST',
-		body: `searchTerm=${searchTerm}`,
 		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded',
+			'Content-Type': 'application/json',
 		},
+		body: JSON.stringify({
+			searchTerm: searchTerm,
+		}),
 	})
 		.then((response) => response.text())
 		.then((data) => {
@@ -107,7 +109,7 @@ searchBar.addEventListener('focusout', () => {
 // 다른 사용자가 접속하면 사용자 리스트가 업데이트됨.
 setInterval(async () => {
 	if (isStop) {
-		await fetch('php/users.php')
+		await fetch('user/users.php')
 			.then((response) => response.text())
 			.then((data) => {
 				if (!searchBar.classList.contains('active')) {
