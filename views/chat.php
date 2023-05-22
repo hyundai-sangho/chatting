@@ -25,10 +25,11 @@ else {
 ?>
 
 <!-- 헤더 -->
+<!-- 기본 css, font-awesome, pwa manifest.json 포함 -->
 <?php require_once 'header.php'; ?>
 <!-- 헤더 -->
 
-<link rel='stylesheet' href='//unpkg.com/emojionearea/dist/emojionearea.min.css'>
+<link rel="stylesheet" href="//unpkg.com/emojionearea/dist/emojionearea.min.css">
 
 
 <body>
@@ -44,12 +45,12 @@ else {
       </div>
 
       <form action="#" class="typing-area" autocomplete="off">
-        <input type="hidden" name="outgoing_id" value="<?= $_SESSION['unique_id'] ?>" id="outgoingId"> <!-- 발신 -->
-        <input type="hidden" name="incoming_id" value="<?= $_GET['user_id'] ?>" id="incomingId"> <!-- 수신 -->
-        <textarea type="text" class="chattingMessage" name="message" style="position: absolute; max-height: 600px;" placeholder="여기에 메시지를 입력하세요." id="chatMessage"></textarea>
-        <i class="fa-solid fa-image" style="position: relative; top: 8.2px; left: -15%; font-size: 15px; color: grey;" id="pictureImage"></i>
-        <input type="file" name="targetUrl" style='display: none;' onchange="insertChat()" id="chatImage" />
-        <button style='position: relative; left: 10px; margin-left: -25px; font-size: 25px;' id="messageSendButton"><i class="far fa-paper-plane fa-spin"></i></button>
+        <input type="hidden" value="<?= $_SESSION['unique_id'] ?>" id="outgoingId"> <!-- 발신 -->
+        <input type="hidden" value="<?= $_GET['user_id'] ?>" id="incomingId"> <!-- 수신 -->
+        <textarea type="text" class="chattingMessage" style="position: absolute; max-height: 600px;" placeholder="여기에 메시지를 입력하세요." id="chatMessage"></textarea>
+        <i class="fa-solid fa-image" style="position: relative; top: 8.2px; left: -15%; font-size: 15px; color: grey;" id="chatUploadImage"></i>
+        <input type="file" style="display: none;" onchange="insertChat()" id="chatImage" />
+        <button style="position: relative; left: 10px; margin-left: -25px; font-size: 25px;" id="messageSendButton"><i class="far fa-paper-plane fa-spin"></i></button>
       </form>
     </section>
   </div>
