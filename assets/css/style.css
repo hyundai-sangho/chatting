@@ -540,6 +540,25 @@ form .name-details .field:first-child {
 	font-weight: bold;
 }
 
+/* 회원가입 */
+/* ( 크롬, 사파리, 오페라, 엣지 ) 동작 */
+.signupPrivacyScroll::-webkit-scrollbar {
+	display: none;
+}
+
+.signupPrivacyScroll {
+	-ms-overflow-style: none;
+	/* 인터넷 익스플로러 */
+	scrollbar-width: none;
+	/* 파이어폭스 */
+}
+
+/* 스크롤바 생성 */
+.signupPrivacyScroll {
+	height: 350px;
+	overflow-y: scroll;
+}
+
 /* 미디어 쿼리 시작 =========================================================*/
 /* 아이폰 XR - 414 x 896 */
 @media (max-width: 414px) {

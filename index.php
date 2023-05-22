@@ -20,28 +20,6 @@ if (isset($_SESSION['unique_id'])) {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
 
 
-<style>
-  /* ( 크롬, 사파리, 오페라, 엣지 ) 동작 */
-  .scroll::-webkit-scrollbar {
-    display: none;
-  }
-
-  .scroll {
-    -ms-overflow-style: none;
-    /* 인터넷 익스플로러 */
-    scrollbar-width: none;
-    /* 파이어폭스 */
-  }
-
-
-  /* 스크롤바 생성 */
-  .scroll {
-    width: 400px;
-    height: 400px;
-    overflow-y: scroll;
-  }
-</style>
-
 <body>
 
   <div class="wrapper">
@@ -107,13 +85,12 @@ if (isset($_SESSION['unique_id'])) {
     </section>
 
     <!-- 햄버거 버튼 모달-->
-    <div id="signupPrivacyModal" class="modal">
-      <div class="scroll">
-        <p style="width: 400px; height: 400px; word-break: keep-all;">
+    <div id="signupPrivacyModal" class="modal" style="width: 300px; height: 400px;">
+      <div class="signupPrivacyScroll">
+        <p style="word-wrap: keep-all; word-break: keep-all;">
 
           1. 개인 정보의 수집 항목 및 수집 방법<br><br>
-          채팅 사이트에서는 기본적인 회원 서비스 제공을 위한 필수 정보로
-          다음의 정보를 수집하고 있습니다. 필수 정보를 입력해주셔야 회원 서비스 이용이 가능합니다.<br><br>
+          채팅 사이트에서는 기본적인 회원 서비스 제공을 위한 필수 정보로 다음의 정보를 수집하고 있습니다. 필수 정보를 입력해주셔야 회원 서비스 이용이 가능합니다.<br><br>
 
           가. 수집하는 개인 정보의 항목 <br><br>
           * 수집하는 필수 항목<br>
@@ -123,11 +100,9 @@ if (isset($_SESSION['unique_id'])) {
           홈페이지 회원 가입을 통한 수집 <br><br>
 
           2. 개인 정보의 수집/이용 목적 및 보유/이용 기간<br><br>
-          채팅 사이트에서는 정보 주체의 회원 가입일로부터 서비스를 제공하는 기간 동안에 한하여
-          채팅 서비스를 이용하기 위한 최소한의 개인정보를 보유 및 이용 하게 됩니다.<br><br>
+          채팅 사이트에서는 정보 주체의 회원 가입일로부터 서비스를 제공하는 기간 동안에 한하여 채팅 서비스를 이용하기 위한 최소한의 개인정보를 보유 및 이용 하게 됩니다.<br><br>
 
           회원가입 등을 통해 개인정보의 수집·이용, 제공 등에 대해 동의하신 내용은 언제든지 철회하실 수 있습니다.
-
         </p>
       </div>
     </div>
