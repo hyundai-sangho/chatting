@@ -12,6 +12,7 @@ if (!isset($_SESSION['unique_id'])) {
 ?>
 
 <!-- 헤더 -->
+<!-- 기본 css, font-awesome, pwa manifest.json 포함 -->
 <?php require_once 'header.php'; ?>
 <!-- 헤더 -->
 
@@ -59,7 +60,7 @@ if (!isset($_SESSION['unique_id'])) {
 
     <!-- 햄버거 버튼 모달-->
     <div id="hamburgerModal" class="modal" style="width: 250px; text-align: center;">
-      <a href="php/logout.php">
+      <a href="user/logout.php">
         <button class="hamburgerChildButton" style='background-color: red'>로그아웃</button>
       </a>
 
