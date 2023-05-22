@@ -1,7 +1,7 @@
 // 로그인 or 회원가입 화면 비밀번호 입력창에 있는 눈알 아이콘
 const eyeIcon = document.querySelector('.fa-eye');
 // 로그인 or 회원가입 화면 비밀번호 입력창
-const passwordInput = document.querySelector('#password');
+const passwordInput = document.querySelector('.password');
 
 // 비밀번호에 있는 눈알 아이콘을 누르면
 eyeIcon.addEventListener('click', () => {
