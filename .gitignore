@@ -6,3 +6,6 @@ vendor
 
 # DB, 이메일 연관 환경 변수
 .env
+
+# log 기록
+log
