@@ -4,11 +4,11 @@ const form = document.querySelector('.typing-area');
 const textareaField = document.querySelector('.chattingMessage');
 // 채팅 div 박스
 const chatBox = document.querySelector('.chat-box');
-
+// 채팅 화면 상대방 프로필 뜨는 부분의 header 태그
 const chatHeaderProfile = document.querySelector('#header');
-
+// 채팅 메시지 보내기 버튼
 const messageSendButton = document.querySelector('#messageSendButton');
-
+// 사진 업로드 i 태그
 const chatUploadImage = document.querySelector('#chatUploadImage');
 
 // 채팅 화면 views/chat.php의 input file창
@@ -20,9 +20,12 @@ const incomingId = document.querySelector('#incomingId');
 // 채팅 메시지
 const chatMessage = document.querySelector('#chatMessage');
 
+// 사진 업로드 아이콘 클릭시
 chatUploadImage.addEventListener('click', (event) => {
+	// form submit 방지
 	event.preventDefault();
 
+	// display: none으로 숨겨놓은 input file창 클릭 처리
 	chatImage.click();
 });
 
@@ -82,7 +85,10 @@ let insertChat = async () => {
 		// 회원가입 화면에서 업로드한 프로필 사진 이미지 압축하기 시작 ==================================================
 		const imageFile = chatImage.files[0];
 
+		// .을 기준으로 파일명 나누기(파일명과 확장자를 . 기준으로 나눠서 배열에 저장)
 		const splitImageFileArray = imageFile['name'].split('.');
+
+		// splitImageFileArray의 마지막 데이터 == 확장자를 imageFileExtension 변수에 저장
 		const imageFileExtension = splitImageFileArray[splitImageFileArray.length - 1];
 
 		// 회원가입 화면에서 업로드한 사진의 파일 타입 jpeg, jpg, png, webp일 때만
@@ -107,6 +113,7 @@ let insertChat = async () => {
 
 			const fileReader = new FileReader();
 
+			// 파일 압축 처리
 			fileReader.onload = (base64) => {
 				const image = new Image();
 
@@ -125,6 +132,7 @@ let insertChat = async () => {
 					// console.log(canvas.toDataURL(`image/jpeg`, 0.5));
 					compressedFile = canvas.toDataURL(`image/jpeg`, 0.5);
 
+					// 파일 압축 한 뒤에 채팅 데이터 입력 처리 php 비동기 호출
 					await fetch('user/insert-chat.php', {
 						method: 'POST',
 						headers: {
@@ -237,6 +245,9 @@ function scrollTopBottom() {
 	chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+/**
+ * 채팅 화면에서 채팅 데이터 X 버튼을 누르면 발생하는 deleteMessage() 함수
+ */
 const deleteMessage = async (messageId) => {
 	await fetch('user/delete-message.php', {
 		method: 'DELETE',
