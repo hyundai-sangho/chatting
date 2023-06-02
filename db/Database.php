@@ -123,17 +123,34 @@ class Database
     $stmt = $this->connection()->prepare($sql);
     $stmt->bindParam(':sessionId', $sessionId);
     $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
     $row_count = $stmt->rowCount();
 
-    if ($row_count > 0) {
-      $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    if ($row_count > 0 && $result['type'] == 'email') {
       // users.php 에서 로그인한 사용자의 이름, 사진, 접속 or 비접속 상태를 표시
       // 프로필 사진 클릭시 js/users.js 내부의 submitForm() 함수가 실행되면서 form submit 실행
       // edit-profiles.php 로 POST로 값이 넘어가면서 사용자 정보 수정 화면으로 이동
       echo "<form action='edit-profile.php' method='POST' id='profileForms'>
               <div class='content' onclick='submitForm()' style='cursor: pointer'>
+                <input type='hidden' name='unique_id' value='$result[unique_id]'>
+                <img src='$result[img]' alt='프로필 사진' />
+
+                <div class='details' style='margin-top: 12px;'>
+                  <span>
+                    $result[name]
+                  </span>
+                </div>
+              </div>
+            </form>";
+    }
+    // 카카오 소셜 로그인을 한 사용자는 프로필 수정이 불가능하도록 설정
+    else {
+      // users.php 에서 로그인한 사용자의 이름, 사진, 접속 or 비접속 상태를 표시
+      // 프로필 사진 클릭시 js/users.js 내부의 submitForm() 함수가 실행되면서 form submit 실행
+      // edit-profiles.php 로 POST로 값이 넘어가면서 사용자 정보 수정 화면으로 이동
+      echo "<form action='edit-profile.php' method='POST' id='profileForms'>
+              <div class='content' style='cursor: pointer'>
                 <input type='hidden' name='unique_id' value='$result[unique_id]'>
                 <img src='$result[img]' alt='프로필 사진' />
 
@@ -230,15 +247,31 @@ class Database
         // 디비에서 가져온 비밀번호를 복호화한 뒤의 값을 $descryptedPassword 변수에 저장
         $decryptedPassword = password_crypt($row['password'], 'd');
 
+        // 세션 unique_id 값에 디비에서 받아온 unique_id 값 삽입
+        $_SESSION['unique_id'] = $row['unique_id'];
+
         // 로그인에서 입력한 비밀번호와 디비에서 가져온 비밀번호를 복호화 한 후의 값이 같다면
         if ($password == $decryptedPassword) {
+          $selectSql = "SELECT * FROM users WHERE unique_id = :sessionId";
+          $selectResult = $this->connection()->prepare($selectSql);
+          $selectResult->bindParam(':sessionId', $_SESSION['unique_id']);
+          $selectResult->execute();
 
-          // 세션 unique_id 값에 디비에서 받아온 unique_id 값 삽입
-          $_SESSION['unique_id'] = $row['unique_id'];
+          $selectResultData = $selectResult->fetch(PDO::FETCH_ASSOC);
 
-          $sql = "UPDATE users SET status = '접속' WHERE unique_id = :sessionId";
+          $sessionUniqueIdArray = explode('||', $selectResultData['session_unique_id']);
+
+          if (count($sessionUniqueIdArray) == 4) {
+            echo "현재 로그인 상태인 기기가 3개라 더 이상은 로그인이 불가능합니다. 기존 로그인한 기기를 로그아웃 해주세요.";
+            exit;
+          }
+
+          $sessionUniqueId = $selectResultData['session_unique_id'] . $_SESSION['unique_id'] . '||';
+
+          $sql = "UPDATE users SET status = '접속', session_unique_id = :sessionUniqueId WHERE unique_id = :sessionId";
           $result = $this->connection()->prepare($sql);
           $result->bindParam(':sessionId', $_SESSION['unique_id']);
+          $result->bindParam(':sessionUniqueId', $sessionUniqueId);
           $result->execute();
 
           echo "성공";
@@ -368,11 +401,12 @@ class Database
       else {
 
         $status = "접속";
+        $type = "email";
 
         // 랜덤 숫자 구하기
         $random_id = rand(time(), 10000000);
 
-        $sql2 = "INSERT INTO users (unique_id, name, email, password, img, status ) VALUES (:random_id, :name, :email, :password, :img, :status)";
+        $sql2 = "INSERT INTO users (unique_id, name, email, password, img, status, session_unique_id, type ) VALUES (:random_id, :name, :email, :password, :img, :status)";
 
         $result2 = $this->connection()->prepare($sql2);
 
@@ -382,6 +416,8 @@ class Database
         $result2->bindParam(':password', $password);
         $result2->bindParam(':img', $imageFile);
         $result2->bindParam(':status', $status);
+        $result2->bindParam(':session_unique_id', $random_id);
+        $result2->bindParam(':type', $type);
 
         $result2->execute();
 
@@ -421,6 +457,16 @@ class Database
   public function getDataByEmail($email)
   {
     $sql = "SELECT * FROM users WHERE email = :email LIMIT 1";
+    $result = $this->connection()->prepare($sql);
+    $result->bindParam(':email', $email);
+    $result->execute();
+
+    return $result->fetch(PDO::FETCH_ASSOC);
+  }
+
+  public function getUsersByKakaoEmail($email)
+  {
+    $sql = "SELECT * FROM users WHERE email = :email AND type = 'kakao' LIMIT 1";
     $result = $this->connection()->prepare($sql);
     $result->bindParam(':email', $email);
     $result->execute();
@@ -631,9 +677,32 @@ class Database
 
   public function logout($sessionId)
   {
-    $sql = "UPDATE users SET status = '비접속' WHERE unique_id = :sessionId";
+    $selectSql = "SELECT * FROM users WHERE unique_id = :sessionId";
+    $selectResult = $this->connection()->prepare($selectSql);
+    $selectResult->bindParam(':sessionId', $sessionId);
+    $selectResult->execute();
+
+    $selectResultData = $selectResult->fetch(PDO::FETCH_ASSOC);
+
+    $sessionUniqueIdArray = explode('||', $selectResultData['session_unique_id']);
+    $sessionUniqueIdMerge = '';
+
+    if ($sessionUniqueIdArray >= 1) {
+      foreach ($sessionUniqueIdArray as $key => $value) {
+        if ($key == 0) {
+          continue;
+        } elseif ($key == count($sessionUniqueIdArray) - 1) {
+          continue;
+        } else {
+          $sessionUniqueIdMerge .= $value . '||';
+        }
+      }
+    }
+
+    $sql = "UPDATE users SET status = '비접속', session_unique_id = :sessionUniqueId WHERE unique_id = :sessionId";
     $result = $this->connection()->prepare($sql);
     $result->bindParam(':sessionId', $sessionId);
+    $result->bindParam(':sessionUniqueId', $sessionUniqueIdMerge);
     $result->execute();
 
     $row_count = $result->rowCount();
@@ -769,7 +838,31 @@ class Database
 
   }
 
+  public function insertMember($profileName, $profileImage, $profileUniqueId, $profileEmail)
+  {
+    $status = "접속";
+    $type = "kakao";
 
+    $sql = "INSERT INTO users (name, img, unique_id, email, status, session_unique_id, type) VALUES (:name, :img, :unique_id, :email, :status, :session_unique_id, :type)";
+
+    $result = $this->connection()->prepare($sql);
+    $result->bindParam(':name', $profileName);
+    $result->bindParam(':img', $profileImage);
+    $result->bindParam(':unique_id', $profileUniqueId);
+    $result->bindParam(':email', $profileEmail);
+    $result->bindParam(':status', $status);
+    $result->bindParam(':session_unique_id', $profileUniqueId);
+    $result->bindParam(':type', $type);
+    $result->execute();
+
+    $row_count = $result->rowCount();
+
+    if ($row_count > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   /**
    * 커넥션 끊기

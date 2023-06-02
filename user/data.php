@@ -46,7 +46,6 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $row_count3 = '';
   }
 
-
   $output .= "<a href='chat.php?user_id=$userUniqueId'>
                         <div class='content'>
                           <img src='$row[img]' alt='프로필 사진'/>
