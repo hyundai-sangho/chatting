@@ -12,6 +12,16 @@ const loginStatusMaintain = document.querySelector('#loginStatusMaintain');
 const loginEmail = document.querySelector('#loginEmail');
 const loginPassword = document.querySelector('#loginPassword');
 
+const kakaoLogin = document.querySelector('#kakaoLogin');
+
+kakaoLogin.addEventListener('click', async (event) => {
+	event.preventDefault();
+
+	const kakaLoginUrl = kakaoLogin.dataset['loginurl'];
+
+	location.href = kakaLoginUrl;
+});
+
 // 로그인 버튼 클릭 또는 로그인창에서 엔터키를 눌렀을시 submit 이벤트 발생
 form.addEventListener('submit', async (event) => {
 	// 이벤트가 발생하는 것을 방지
