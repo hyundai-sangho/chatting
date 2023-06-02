@@ -21,10 +21,6 @@ if (isset($_COOKIE['email'])) {
   // 쿠키로 저장되어 있는 이메일을 토대로 디비에 사용자가 존재하는지 확인
   $result = $database->getDataByEmail($email);
 
-
-
-
-
   function password_crypt($string, $action = 'e') // $action 값은 기본값을 e(ncryted)로 한다.
   {
     $secret_key = 'chosangho_secret_key';
@@ -46,14 +42,24 @@ if (isset($_COOKIE['email'])) {
 
   $descryptedPassword = password_crypt($result['password'], 'd');
 
-
-
-
-
   // 디비 커넥션 끊기
   $database->connectionClose();
 }
 
+// 카카오 로그인 설정 =============================================================
+// ![수정필요] 카카오 API 환경설정 파일
+include_once "../config.php";
+
+// 정보치환
+$replace = array(
+  '{client_id}' => $kakaoConfig['client_id'],
+  '{redirect_uri}' => $kakaoConfig['redirect_uri'],
+  '{state}' => md5(mt_rand(111111111, 999999999)),
+);
+
+setcookie('state', $replace['{state}'], time() + 300, '/'); // 300 초동안 유효
+
+$login_auth_url = str_replace(array_keys($replace), array_values($replace), $kakaoConfig['login_auth_url']);
 
 ?>
 
@@ -100,6 +106,10 @@ if (isset($_COOKIE['email'])) {
 
         <div class="field button">
           <input type="submit" value="이메일 로그인" />
+        </div>
+
+        <div class="field button">
+          <input type="submit" value="카카오 로그인" style="background-color: #FEE500; color: #000" id="kakaoLogin" data-loginurl="<?= $login_auth_url ?>" />
         </div>
       </form>
 
