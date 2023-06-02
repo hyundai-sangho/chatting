@@ -31,6 +31,18 @@ else {
 
 <link rel="stylesheet" href="//unpkg.com/emojionearea/dist/emojionearea.min.css">
 
+<style>
+  .emojionearea .emojionearea-picker {
+    width: 295px
+      /* height: 376px; */
+  }
+
+  .emojionearea .emojionearea-picker .emojionearea-wrapper {
+    position: relative;
+    width: 295px
+      /* height: 276px; */
+  }
+</style>
 
 <body>
 
@@ -47,7 +59,7 @@ else {
       <form action="#" class="typing-area" autocomplete="off">
         <input type="hidden" value="<?= $_SESSION['unique_id'] ?>" id="outgoingId"> <!-- 발신 -->
         <input type="hidden" value="<?= $_GET['user_id'] ?>" id="incomingId"> <!-- 수신 -->
-        <textarea type="text" class="chattingMessage" style="position: absolute; max-height: 600px;" placeholder="여기에 메시지를 입력하세요." id="chatMessage"></textarea>
+        <textarea type="text" class="chattingMessage" placeholder="여기에 메시지를 입력하세요." id="chatMessage"></textarea>
         <i class="fa-solid fa-image" style="position: relative; top: 8.2px; left: -15%; font-size: 15px; color: grey;" id="chatUploadImage"></i>
         <input type="file" style="display: none;" onchange="insertChat()" id="chatImage" />
         <button style="position: relative; left: 10px; margin-left: -25px; font-size: 25px;" id="messageSendButton"><i class="far fa-paper-plane fa-spin"></i></button>
