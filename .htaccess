@@ -8,6 +8,7 @@ RewriteRule "^edit-profile.php$" "views/edit-profile.php"
 RewriteRule "^find-password.php$" "views/find-password.php"
 RewriteRule "^auth-code.php$" "views/auth-code.php"
 RewriteRule "^verify-password.php$" "views/verify-password.php"
+RewriteRule "^oauth.php$" "views/oauth.php"
 
 # 404 에러(존재하지 않는 페이지로 이동)가 발생하면 홈페이지로 이동
-ErrorDocument 404 http://localhost/chatting/
+# ErrorDocument 404 http://localhost/chatting/
