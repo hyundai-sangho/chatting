@@ -64,9 +64,11 @@ if (!isset($_SESSION['unique_id'])) {
         <button class="hamburgerChildButton" style='background-color: red'>로그아웃</button>
       </a>
 
-      <a href="edit-profile.php">
-        <button class="hamburgerChildButton">프로필 수정</button>
-      </a>
+      <?php if (empty($_SESSION['kakaoEmail'])) { ?>
+        <a href="edit-profile.php">
+          <button class="hamburgerChildButton">프로필 수정</button>
+        </a>
+      <?php } ?>
     </div>
 
     <!-- jquery.js 추가 :) -->
