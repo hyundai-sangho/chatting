@@ -62,17 +62,16 @@ try {
   $profileUniqueId = '';
   $profileEmail = '';
 
-  /* echo '<pre>';
-    print_r($profile_data);
-    echo '</pre>'; */
-
   // 카카오에서 받아온 데이터 중 필요한 데이터만 변수에 저장
   // 프로필 이름, 사진, uniqueId, 이메일
   foreach ($profile_data as $key1 => $value1) {
     if ($key1 == "id") {
       // setcookie('id', time() + 3600 * 24 * 30);
       // 카카오 id를 profileUniqueId 변수에 저장
-      $profileUniqueId = $value1;
+      $profileUniqueId = intval($value1);
+
+      /*       var_dump($profileUniqueId);
+            exit; */
     } else if ($key1 == 'properties') {
       foreach ($value1 as $key2 => $value2) {
         if ($key2 == 'profile_image') {
@@ -92,16 +91,6 @@ try {
     }
   }
 
-  /*  echo $profileName;
-   echo "<br>";
-   echo $profileImage;
-   echo "<br>";
-   echo $profileUniqueId;
-   echo "<br>";
-   echo $profileEmail;
-   echo "<br>";
-   exit; */
-
   // 디비 객체 생성
   $db = new Database();
 
@@ -115,8 +104,10 @@ try {
     $_SESSION['unique_id'] = $kakaoEmailResult['unique_id'];
     $_SESSION['kakaoEmail'] = "yes";
 
+    $db->kakaoLoginStatusUpdate($kakaoEmailResult['unique_id']);
+
     // state 초기화
-    setcookie('state', '', time() - 300, '/'); // 300 초동안 유효
+    setcookie('state', '', time() - 3600, '/'); // 300 초동안 유효
 
     header("Location: ../users.php");
   } else {
@@ -135,31 +126,6 @@ try {
       header("Location: ../users.php");
     }
   }
-
-
-  /*   // 기존 회원일 경우
-    if ($is_member === true) {
-      $_SESSION['unique_id'] = $emailResult['unique_id'];
-
-      header("Location: ../users.php");
-      exit;
-    } // 새로 가입일 경우
-    else {
-      $insertResult = $db->insertMember($profileName, $profileImage, $profileUniqueId, $profileEmail);
-
-      if ($insertResult) {
-        // 최종 성공 처리
-        $res['rst'] = 'success';
-
-        // echo "<script> alert('테스트 성공') </script>";
-
-        header("Location: ../users.php");
-
-        $_SESSION['unique_id'] = $profileUniqueId;
-      }
-    } */
-
-
 } catch (Exception $e) {
   if (!empty($e->getMessage())) {
     echo $res['msg'] = $e->getMessage();
@@ -168,14 +134,3 @@ try {
     echo $res['code'] = $e->getCode();
   }
 }
-
-
-/* // 성공 처리
-if ($res['rst'] == 'success') {
-  echo "<script>alert('테스트 성공')</script>";
-
-  header("Location: /login.php");
-} // 실패처리
-else {
-
-} */
