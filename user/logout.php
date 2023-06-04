@@ -11,6 +11,7 @@ if (isset($_SESSION['unique_id'])) {
   $result = $database->logout($_SESSION['unique_id']);
 
   if ($result == '업데이트 성공') {
+
     // 세션 unique_id 값을 지워버림으로써 로그아웃이 된 상태가 됨.
     unset($_SESSION['unique_id']);
 
@@ -20,7 +21,6 @@ if (isset($_SESSION['unique_id'])) {
     // 쿠키에 저장되어 있는 email 제거
     setcookie('email', '', time() - 3600, '/');
     setcookie('talkFriend', '', time() - 3600, '/');
-
 
     // 디비 커넥션 끊기
     $database->connectionClose();
