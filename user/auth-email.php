@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
   // 디비 객체 생성
   $database = new Database();
-  $resultRandomString = $database->getData_passwordFindTable_randomString();
+  $resultRandomNumber = $database->getPasswordRandomAuthCode();
 
   // 디비 커넥션 제거
   $database->connectionClose();
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
   // 세션 시작
   session_start();
-  $_SESSION['authCode'] = $resultRandomString;
+  $_SESSION['authCode'] = $resultRandomNumber;
 
   // 인스턴스를 생성합니다. 'true'를 전달하면 예외가 활성화됩니다.
   $mail = new PHPMailer(true);
@@ -78,8 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // 콘텐츠
     $mail->isHTML(true); // 이메일 형식을 HTML로 설정
     $mail->Subject = '채팅 회원 가입 이메일 인증 코드';
-    $mail->Body = "$resultRandomString";
-    $mail->AltBody = "$resultRandomString";
+    $mail->Body = "$resultRandomNumber";
+    $mail->AltBody = "$resultRandomNumber";
 
     $mail->send();
 
