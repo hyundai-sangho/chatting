@@ -268,7 +268,6 @@ chatting
 
 <pre>
 • Request (Body)
-
   {
     "compressedFile": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4g",
     "name": "조장혁",
@@ -278,7 +277,6 @@ chatting
   }
 
 • Response
-
   [성공]
   {
     code : '200',

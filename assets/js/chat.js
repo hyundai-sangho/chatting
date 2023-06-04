@@ -110,7 +110,6 @@ let insertChat = async () => {
 			}
 
 			// 파일 1MB 미만이라면 파일 압축
-
 			const fileReader = new FileReader();
 
 			// 파일 압축 처리

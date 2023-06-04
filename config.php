@@ -29,7 +29,11 @@ $kakaoConfig = array(
   'profile_url' => 'https://kapi.kakao.com/v2/user/me',
 
   // ![수정필요] 로그인 인증 후 Callback url 설정 - 변경시 URL 수정 필요, 카카오 개발자 사이트 > 내 애플리케이션 > 카카오로그인 > Redirect URI 에서 등록가능
+
+  // 로컬에서 사용
   'redirect_uri' => 'http' . (!empty($_SERVER['HTTPS']) ? 's' : null) . '://' . $_SERVER['HTTP_HOST'] . '/chatting/views/oauth.php',
+  // chosangho.site 사용
+  // 'redirect_uri' => 'https://' . $_SERVER['HTTP_HOST'] . '/oauth.php',
 );
 
 // 함수: 카카오 curl 통신
