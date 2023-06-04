@@ -23,7 +23,7 @@ $email = $json_array["findPasswordEmail"];
 $database = new Database();
 $result = $database->getDataByEmail($email);
 $resultEncryptedPassword = $result['password'];
-$resultRandomString = $database->getData_passwordFindTable_randomString();
+$resultRandomNumber = $database->getPasswordRandomAuthCode();
 
 
 /* php dotenv 사용법 */
@@ -39,7 +39,7 @@ if ($resultEncryptedPassword) {
   // 세션 시작
   session_start();
   // auth-code.php 에서 사용할 인증 코드를 세션에 저장
-  $_SESSION['authCode'] = $resultRandomString;
+  $_SESSION['authCode'] = $resultRandomNumber;
 
 
   // 인스턴스를 생성합니다. 'true'를 전달하면 예외가 활성화됩니다.
@@ -67,8 +67,8 @@ if ($resultEncryptedPassword) {
     // 콘텐츠
     $mail->isHTML(true); // 이메일 형식을 HTML로 설정
     $mail->Subject = '채팅 회원 비밀번호 찾기 인증 코드';
-    $mail->Body = "$resultRandomString";
-    $mail->AltBody = "$resultRandomString";
+    $mail->Body = "$resultRandomNumber";
+    $mail->AltBody = "$resultRandomNumber";
 
     $mail->send();
 
