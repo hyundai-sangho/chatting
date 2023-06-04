@@ -798,7 +798,7 @@ class Database
 
 
 
-  public function getData_passwordFindTable_randomString()
+  public function getPasswordRandomAuthCode()
   {
     $sql = "SELECT * FROM authcode ORDER BY RAND() LIMIT 1;";
     $result = $this->connection()->prepare($sql);
@@ -808,7 +808,7 @@ class Database
 
     if ($row_count > 0) {
       $row = $result->fetch(PDO::FETCH_ASSOC);
-      return $row['randomString'];
+      return $row['randomNumber'];
     }
   }
 
@@ -862,6 +862,14 @@ class Database
     } else {
       return false;
     }
+  }
+
+  public function kakaoLoginStatusUpdate($unique_id)
+  {
+    $sql = "UPDATE users SET status = '접속' WHERE unique_id = :unique_id";
+    $result = $this->connection()->prepare($sql);
+    $result->bindParam(':unique_id', $unique_id);
+    $result->execute();
   }
 
   /**
