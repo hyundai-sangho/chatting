@@ -19,7 +19,7 @@ if (isset($_SESSION['unique_id'])) {
     $incomingId = $insertChat["incomingId"];
     $imageFileName = $insertChat["image"] ?? '';
 
-    $database->getDataByMessageAndOutgoingIdAndIncomingId($message, $outgoingId, $incomingId, $imageFileName);
+    $database->insertChatMessage($message, $outgoingId, $incomingId, $imageFileName);
 
     // 디비 커넥션 끊기
     $database->connectionClose();
