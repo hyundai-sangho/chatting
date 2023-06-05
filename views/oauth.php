@@ -70,8 +70,6 @@ try {
       // 카카오 id를 profileUniqueId 변수에 저장
       $profileUniqueId = intval($value1);
 
-      /*       var_dump($profileUniqueId);
-            exit; */
     } else if ($key1 == 'properties') {
       foreach ($value1 as $key2 => $value2) {
         if ($key2 == 'profile_image') {
@@ -110,6 +108,8 @@ try {
     setcookie('state', '', time() - 3600, '/'); // 300 초동안 유효
 
     header("Location: ../users.php");
+
+    // 카카오 소셜 로그인으로 들어온 사용자 정보가 디비에 없다면 사용자 정보 등록
   } else {
     $insertResult = $db->createKakaoUser($profileName, $profileImage, $profileUniqueId, $profileEmail);
 
