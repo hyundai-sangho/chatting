@@ -53,7 +53,34 @@ $log->pushHandler(new StreamHandler('../log/info.log', Logger::INFO));
  * 로그인 창에서 로그인 상태 유지를 위해 이메일 데이터를 바탕으로
  * users 디비 테이블에서 데이터 존재 유무를 확인
  *
- * 9. connectionClose() 메소드
+ * 9.  insertChatMessage($message, $outgoingId, $incomingId, $imageFileName)
+ * 채팅 데이터 입력
+ *
+ * 10. getMessagesDataById($outgoingId, $incomingId)
+ * 채팅 메시지 가져오기
+ *
+ * 11. logout($sessionId)
+ * 로그 아웃
+ *
+ * 12. getUserDataById($unique_id)
+ * unique_id로 사용자 정보 가져오기
+ *
+ * 13. deleteMessage($deleteMessageId)
+ * 메시지 삭제
+ *
+ * 14. getPasswordRandomAuthCode()
+ * 이메일 인증 코드 가져오기
+ *
+ * 15. getUsersDataByEmailAndPassword($email, $password)
+ * 이메일과 비밀번호로 사용자 정보 가져오기
+ *
+ * 16. createKakaoUser($profileName, $profileImage, $profileUniqueId, $profileEmail)
+ * 카카오 소셜 로그인을 통해 들어온 사용자 처음 로그인시 디비에 사용자 정보 등록
+ *
+ * 17. kakaoLoginStatusUpdate($unique_id)
+ * 카카오 접속 상태 변경(비접속에서 접속으로 변경)
+ *
+ * 18. connectionClose() 메소드
  * 커넥션 끊기
  */
 class Database
@@ -474,7 +501,7 @@ class Database
     return $result->fetch(PDO::FETCH_ASSOC);
   }
 
-  public function getDataByMessageAndOutgoingIdAndIncomingId($message, $outgoingId, $incomingId, $imageFileName)
+  public function insertChatMessage($message, $outgoingId, $incomingId, $imageFileName)
   {
 
     // 메시지가 비어있지 않다면 => 메시지가 있다면
@@ -494,7 +521,7 @@ class Database
           echo "성공";
         }
       } catch (PDOException $e) {
-        echo "메시지 업로드 중 getDataByMessageAndOutgoingIdAndIncomingId() 함수 INSERT 쿼리 실패" . $e->getMessage();
+        echo "메시지 업로드 중 insertChatMessage() 함수 INSERT 쿼리 실패" . $e->getMessage();
       }
 
       // 메시지가 비었다면 => 즉, 사진 파일을 올렸다면(사진 파일을 올릴 시에는 텍스트는 삽입 안 함.)
@@ -510,7 +537,7 @@ class Database
 
         echo "성공";
       } catch (PDOException $e) {
-        echo "사진 업로드 중 getDataByMessageAndOutgoingIdAndIncomingId() 함수 INSERT 쿼리 실패" . $e->getMessage();
+        echo "사진 업로드 중 insertChatMessage() 함수 INSERT 쿼리 실패" . $e->getMessage();
       }
     }
   }
@@ -808,6 +835,7 @@ class Database
 
     if ($row_count > 0) {
       $row = $result->fetch(PDO::FETCH_ASSOC);
+
       return $row['randomNumber'];
     }
   }
@@ -838,7 +866,7 @@ class Database
 
   }
 
-  public function insertMember($profileName, $profileImage, $profileUniqueId, $profileEmail)
+  public function createKakaoUser($profileName, $profileImage, $profileUniqueId, $profileEmail)
   {
     $status = "접속";
     $type = "kakao";
