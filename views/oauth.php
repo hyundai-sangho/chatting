@@ -111,7 +111,7 @@ try {
 
     header("Location: ../users.php");
   } else {
-    $insertResult = $db->insertMember($profileName, $profileImage, $profileUniqueId, $profileEmail);
+    $insertResult = $db->createKakaoUser($profileName, $profileImage, $profileUniqueId, $profileEmail);
 
     if ($insertResult) {
       // 최종 성공 처리
