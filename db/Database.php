@@ -894,8 +894,18 @@ class Database
 
   public function kakaoLoginStatusUpdate($unique_id)
   {
-    $sql = "UPDATE users SET status = '접속' WHERE unique_id = :unique_id";
+    $status = '접속';
+
+    // session_unique_id 컬럼에 데이터가 하나도 없다면
+    // 곧바로 $unique_id 입력
+    // 기존 값이 있다면 기존값에 추가
+    // session_unique_id 값이 3개가 들어있다면 로그인 불가 처리
+    // 코드 작성하기
+
+    $sql = "UPDATE users SET status = :status, session_unique_id = :session_unique_id WHERE unique_id = :unique_id";
     $result = $this->connection()->prepare($sql);
+    $result->bindParam(':status', $status);
+    $result->bindParam(':session_unique_id', $unique_id);
     $result->bindParam(':unique_id', $unique_id);
     $result->execute();
   }
