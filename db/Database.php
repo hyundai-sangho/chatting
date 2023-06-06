@@ -172,7 +172,7 @@ class Database
             </form>";
     }
     // 카카오 소셜 로그인을 한 사용자는 프로필 수정이 불가능하도록 설정
-    else {
+    elseif ($row_count > 0 && $result['type'] == 'kakao') {
       // users.php 에서 로그인한 사용자의 이름, 사진, 접속 or 비접속 상태를 표시
       // 프로필 사진 클릭시 js/users.js 내부의 submitForm() 함수가 실행되면서 form submit 실행
       // edit-profiles.php 로 POST로 값이 넘어가면서 사용자 정보 수정 화면으로 이동
@@ -260,7 +260,7 @@ class Database
 
     // $email, $password 변수에 값이 없다면 "모든 입력 필드가 필요합니다." 출력
     if (!empty($email) && !empty($password)) {
-      $selectUsersTableByEmailQuery = "SELECT * FROM users WHERE email = :email";
+      $selectUsersTableByEmailQuery = "SELECT * FROM users WHERE email = :email AND type = 'email' ";
       $stmt = $this->connection()->prepare($selectUsersTableByEmailQuery);
       $stmt->bindParam(':email', $email);
       $stmt->execute();
@@ -279,26 +279,30 @@ class Database
 
         // 로그인에서 입력한 비밀번호와 디비에서 가져온 비밀번호를 복호화 한 후의 값이 같다면
         if ($password == $decryptedPassword) {
-          $selectSql = "SELECT * FROM users WHERE unique_id = :sessionId";
+          $selectSql = "SELECT * FROM users WHERE unique_id = :sessionId AND type = 'email' ";
           $selectResult = $this->connection()->prepare($selectSql);
           $selectResult->bindParam(':sessionId', $_SESSION['unique_id']);
           $selectResult->execute();
 
           $selectResultData = $selectResult->fetch(PDO::FETCH_ASSOC);
 
-          $sessionUniqueIdArray = explode('||', $selectResultData['session_unique_id']);
+          $sessionUniqueIdArray = unserialize(base64_decode($selectResultData['session_unique_id']));
 
-          if (count($sessionUniqueIdArray) == 4) {
+          if (count($sessionUniqueIdArray) == 3) {
             echo "현재 로그인 상태인 기기가 3개라 더 이상은 로그인이 불가능합니다. 기존 로그인한 기기를 로그아웃 해주세요.";
             exit;
           }
 
-          $sessionUniqueId = $selectResultData['session_unique_id'] . $_SESSION['unique_id'] . '||';
+          // 랜덤 숫자 구하기
+          $randomId = rand(time(), 10000000);
+
+          array_push($sessionUniqueIdArray, $randomId);
+          $sessionUniqueIdEncode = base64_encode(serialize($sessionUniqueIdArray));
 
           $sql = "UPDATE users SET status = '접속', session_unique_id = :sessionUniqueId WHERE unique_id = :sessionId";
           $result = $this->connection()->prepare($sql);
           $result->bindParam(':sessionId', $_SESSION['unique_id']);
-          $result->bindParam(':sessionUniqueId', $sessionUniqueId);
+          $result->bindParam(':sessionUniqueId', $sessionUniqueIdEncode);
           $result->execute();
 
           echo "성공";
@@ -353,7 +357,7 @@ class Database
   {
     global $log;
 
-    $sql = "SELECT * FROM users WHERE email = :email";
+    $sql = "SELECT * FROM users WHERE email = :email AND 'type' ='email' ";
     $result = $this->connection()->prepare($sql);
     $result->bindParam(':email', $email);
     $result->execute();
@@ -372,23 +376,27 @@ class Database
       // 회원가입 화면에서 프로필 이미지 선택을 따로 안 했다면 프로필 이미지는 "default.png"로 들어감.
       if ($imageFile == null) {
         $status = "접속";
+        $type = "email";
 
         // 랜덤 숫자 구하기
-        $random_id = rand(time(), 10000000);
+        $randomId = rand(time(), 10000000);
+        $randomIdEncode = base64_encode(serialize(array($randomId)));
 
         // 기본 이미지(회원가입 화면에서 프로필 이미지를 선택하지 않았다면 기본 이미지로 업로드)
         $default_image = "/base/default.png";
 
-        $sql2 = "INSERT INTO users (unique_id, name, email, password, img, status ) VALUES (:random_id, :name, :email, :password, :img, :status)";
+        $sql2 = "INSERT INTO users (unique_id, name, email, password, img, status, session_unique_id, type ) VALUES (:unique_id, :name, :email, :password, :img, :status, :session_unique_id, :type)";
 
         $result2 = $this->connection()->prepare($sql2);
 
-        $result2->bindParam(':random_id', $random_id);
+        $result2->bindParam(':unique_id', $randomId);
         $result2->bindParam(':name', $name);
         $result2->bindParam(':email', $email);
         $result2->bindParam(':password', $password);
         $result2->bindParam(':img', $default_image);
         $result2->bindParam(':status', $status);
+        $result2->bindParam(':session_unique_id', $randomIdEncode);
+        $result2->bindParam(':type', $type);
 
         $result2->execute();
 
@@ -407,18 +415,15 @@ class Database
           if ($row_count2 > 0) {
             $row = $result3->fetch(PDO::FETCH_ASSOC);
 
-
             // 여기까지 왔다면 회원 데이터가 제대로 디비에 저장이 되고
             // 세션 unique_id에 디비에서 받아온 unique_id 값 저장
             $_SESSION['unique_id'] = $row['unique_id'];
-
-
 
             // 회원가입 완료 후 세션 authCode 제거(이메일 인증코드)
             unset($_SESSION['authCode']);
 
             http_response_code(200);
-            echo "{ code : '200', message : '회원 가입 성공', location: 'db/Database.php, signUp() 함수'  }";
+            echo "{ code : '200', message : '회원 가입 성공', location: 'db/Database.php, signUp() 함수' }";
             exit;
           }
         }
@@ -431,19 +436,20 @@ class Database
         $type = "email";
 
         // 랜덤 숫자 구하기
-        $random_id = rand(time(), 10000000);
+        $randomId = rand(time(), 10000000);
+        $randomIdEncode = base64_encode(serialize(array($randomId)));
 
-        $sql2 = "INSERT INTO users (unique_id, name, email, password, img, status, session_unique_id, type ) VALUES (:random_id, :name, :email, :password, :img, :status)";
+        $sql2 = "INSERT INTO users (unique_id, name, email, password, img, status, session_unique_id, type ) VALUES (:unique_id, :name, :email, :password, :img, :status, :session_unique_id, :type)";
 
         $result2 = $this->connection()->prepare($sql2);
 
-        $result2->bindParam(':random_id', $random_id);
+        $result2->bindParam(':unique_id', $randomId);
         $result2->bindParam(':name', $name);
         $result2->bindParam(':email', $email);
         $result2->bindParam(':password', $password);
         $result2->bindParam(':img', $imageFile);
         $result2->bindParam(':status', $status);
-        $result2->bindParam(':session_unique_id', $random_id);
+        $result2->bindParam(':session_unique_id', $randomIdEncode);
         $result2->bindParam(':type', $type);
 
         $result2->execute();
@@ -493,7 +499,7 @@ class Database
 
   public function getUsersByKakaoEmail($email)
   {
-    $sql = "SELECT * FROM users WHERE email = :email AND type = 'kakao' LIMIT 1";
+    $sql = "SELECT * FROM users WHERE email = :email AND `type` = 'kakao' LIMIT 1";
     $result = $this->connection()->prepare($sql);
     $result->bindParam(':email', $email);
     $result->execute();
@@ -528,11 +534,11 @@ class Database
     } else {
 
       try {
-        $sql = "INSERT INTO messages (outgoing_msg_id, incoming_msg_id, msg_image) VALUES (:outgoing_id, :incoming_id, :msg_image)";
+        $sql = "INSERT INTO messages (outgoing_msg_id, incoming_msg_id, image) VALUES (:outgoing_id, :incoming_id, :image)";
         $result = $this->connection()->prepare($sql);
         $result->bindParam(':outgoing_id', $outgoingId);
         $result->bindParam(':incoming_id', $incomingId);
-        $result->bindParam(':msg_image', $imageFileName);
+        $result->bindParam(':image', $imageFileName);
         $result->execute();
 
         echo "성공";
@@ -544,9 +550,9 @@ class Database
 
   public function getMessagesDataById($outgoingId, $incomingId)
   {
-    $sql = "SELECT * FROM messages
-            LEFT JOIN users ON users.unique_id = messages.outgoing_msg_id
-            WHERE (outgoing_msg_id = :outgoingId AND incoming_msg_id = :incomingId) OR (outgoing_msg_id = :incomingId AND incoming_msg_id = :outgoingId) ORDER BY msg_id";
+    $sql = "SELECT * FROM messages m
+            LEFT JOIN users u ON u.unique_id = m.outgoing_msg_id
+            WHERE (outgoing_msg_id = :outgoingId AND incoming_msg_id = :incomingId) OR (outgoing_msg_id = :incomingId AND incoming_msg_id = :outgoingId) ORDER BY m.id";
 
     $result = $this->connection()->prepare($sql);
     $result->bindParam(':outgoingId', $outgoingId);
@@ -555,6 +561,7 @@ class Database
 
     $results = $result->fetchAll(PDO::FETCH_ASSOC);
     $row_count = $result->rowCount();
+
 
     $output = '';
 
@@ -567,20 +574,20 @@ class Database
         $substringCurrentDate = substr($currentDate, 0, 10);
         $currentDate = new DateTime($substringCurrentDate);
 
-        $substringWriteDate = substr($row['msg_time'], 0, 10);
+        $substringWriteDate = substr($row['created_at'], 0, 10);
         $writeDate = new DateTime($substringWriteDate);
         $diff = $currentDate->diff($writeDate);
 
         // 글 작성일과 오늘 날짜가 하루 이상 차이가 난다면 $diffDay 변수에 날짜 저장
         if ($diff->days >= 1) {
 
-          $selectMsgIdQuery = "SELECT msg_id FROM `messages` WHERE ((outgoing_msg_id = $outgoingId AND incoming_msg_id = $incomingId) OR (outgoing_msg_id = $incomingId AND incoming_msg_id = $outgoingId)) AND DATE(msg_time) = '$substringWriteDate' ORDER BY msg_id DESC LIMIT 1";
+          $selectMsgIdQuery = "SELECT id FROM `messages` WHERE ((outgoing_msg_id = $outgoingId AND incoming_msg_id = $incomingId) OR (outgoing_msg_id = $incomingId AND incoming_msg_id = $outgoingId)) AND DATE(created_at) = '$substringWriteDate' ORDER BY id DESC LIMIT 1";
 
           $selectMsgIdQueryResult = $this->connection()->prepare($selectMsgIdQuery);
           $selectMsgIdQueryResult->execute();
           $selectMsgIdQueryResultRow = $selectMsgIdQueryResult->fetch(PDO::FETCH_ASSOC);
 
-          if ($selectMsgIdQueryResultRow['msg_id'] == $row['msg_id']) {
+          if ($selectMsgIdQueryResultRow['id'] == $row['id']) {
 
             // 날짜 기준으로 요일 계산하기
             $yoil = array("일", "월", "화", "수", "목", "금", "토");
@@ -601,22 +608,22 @@ class Database
         }
 
         // 디비에서 msg_time 가져온 뒤에 시간과 분만 따로 추출해서 $msgTime 변수에 저장
-        $msgTime = substr($row['msg_time'], 10, 6) . '분';
+        $msgTime = substr($row['created_at'], 10, 6) . '분';
 
 
         $rowMsg = nl2br($row['msg']);
 
         // 메시지 보낸 사람 = 나
         if ($row['outgoing_msg_id'] == $outgoingId) {
-          if ($row['msg_image']) {
+          if ($row['image']) {
 
             $output .= "<div class='chat outgoing'>
                                   <div class='details'>
                                     <span style='position: relative; left: -70px; top: 30px;'>$msgTime</span>
-                                    <i id='myImageCloseIcon' class='fas fa-times myImageCloseIcon' onclick='deleteMessage($row[msg_id])'></i>
-                                    <img src='$row[msg_image]' style='width: 100%; object-fit: cover; border-radius: 5px;'>
+                                    <i id='myImageCloseIcon' class='fas fa-times myImageCloseIcon' onclick='deleteMessage($row[id])'></i>
+                                    <img src='$row[image]' style='width: 100%; object-fit: cover; border-radius: 5px;'>
 
-                                    <a href='$row[msg_image]' download style='position: relative; top: -30px; left: -70px;'>
+                                    <a href='$row[image]' download style='position: relative; top: -30px; left: -70px;'>
                                       <button style='cursor: pointer;'>
                                         다운로드
                                       </button>
@@ -630,7 +637,7 @@ class Database
             $output .= "<div class='chat outgoing'>
                                   <div class='details'>
                                     <span style='position: relative; left: -70px; top: 30px;'>$msgTime</span>
-                                    <p> $rowMsg <i id='myMessageCloseIcon' class='fas fa-times myImageCloseIcon' onclick='deleteMessage($row[msg_id])'></i> </p>
+                                    <p> $rowMsg <i id='myMessageCloseIcon' class='fas fa-times myImageCloseIcon' onclick='deleteMessage($row[id])'></i> </p>
 
                                     <span id='myImgDiffDay'>$diff</span>
 
@@ -639,16 +646,16 @@ class Database
           }
 
         } else { // 메시지 받는 사람 = 다른 사람
-          if ($row['msg_image']) {
+          if ($row['image']) {
             if (isset($diff)) {
               $output .= "<div class='chat incoming'>
                                     <img src='$row[img]' alt='프로필 사진' />
 
                                     <div class='details' style='position: relative;'>
-                                      <img src='$row[msg_image]' style='margin-left: 10px; width: 200px; height: 200px; object-fit: cover; border-radius: 5px;'>
+                                      <img src='$row[image]' style='margin-left: 10px; width: 200px; height: 200px; object-fit: cover; border-radius: 5px;'>
                                       <span style='position: absolute; left: 220px; top: 10px; width: 50%;'>$msgTime</span>
 
-                                      <a href='$row[msg_image]' download>
+                                      <a href='$row[image]' download>
                                         <button style='position:relative; left: 220px; top: -25px; cursor: pointer;'>
                                           다운로드
                                         </button>
@@ -661,10 +668,10 @@ class Database
                                   <img src='$row[img]' alt='프로필 사진' />
 
                                     <div class='details' style='position: relative;'>
-                                      <img src='$row[msg_image]' style='margin-left: 10px; width: 200px; height: 200px; object-fit: cover; border-radius: 5px;'>
+                                      <img src='$row[image]' style='margin-left: 10px; width: 200px; height: 200px; object-fit: cover; border-radius: 5px;'>
                                       <span style='position: absolute; left: 220px; top: 10px; width: 50%;'>$msgTime</span>
 
-                                      <a href='$row[msg_image]' download>
+                                      <a href='$row[image]' download>
                                         <button style='position:relative; left: 220px; top: -25px; cursor: pointer;'>
                                           다운로드
                                         </button>
@@ -692,7 +699,7 @@ class Database
     }
 
     // 상대방이 보낸 채팅 메시지를 chat.php에 들어가 봤다면 msg_read를 'yes'로 업데이트
-    $readMsgUpdateQuery = "UPDATE messages SET msg_read = 'yes' WHERE outgoing_msg_id = :outgoingId AND incoming_msg_id = :incomingId";
+    $readMsgUpdateQuery = "UPDATE messages SET `read` = 'yes' WHERE outgoing_msg_id = :outgoingId AND incoming_msg_id = :incomingId";
     $readMsgUpdateResult = $this->connection()->prepare($readMsgUpdateQuery);
     $readMsgUpdateResult->bindParam(':outgoingId', $incomingId);
     $readMsgUpdateResult->bindParam(':incomingId', $outgoingId);
@@ -711,25 +718,19 @@ class Database
 
     $selectResultData = $selectResult->fetch(PDO::FETCH_ASSOC);
 
-    $sessionUniqueIdArray = explode('||', $selectResultData['session_unique_id']);
-    $sessionUniqueIdMerge = '';
+    $sessionUniqueIdArray = unserialize(base64_decode($selectResultData['session_unique_id']));
 
-    if ($sessionUniqueIdArray >= 1) {
-      foreach ($sessionUniqueIdArray as $key => $value) {
-        if ($key == 0) {
-          continue;
-        } elseif ($key == count($sessionUniqueIdArray) - 1) {
-          continue;
-        } else {
-          $sessionUniqueIdMerge .= $value . '||';
-        }
-      }
+    if (count($sessionUniqueIdArray) >= 1) {
+      array_splice($sessionUniqueIdArray, count($sessionUniqueIdArray) - 1);
     }
+
+    $sessionUniqueIdEncode = base64_encode(serialize($sessionUniqueIdArray));
+
 
     $sql = "UPDATE users SET status = '비접속', session_unique_id = :sessionUniqueId WHERE unique_id = :sessionId";
     $result = $this->connection()->prepare($sql);
     $result->bindParam(':sessionId', $sessionId);
-    $result->bindParam(':sessionUniqueId', $sessionUniqueIdMerge);
+    $result->bindParam(':sessionUniqueId', $sessionUniqueIdEncode);
     $result->execute();
 
     $row_count = $result->rowCount();
@@ -756,7 +757,7 @@ class Database
     // 프로필 수정에서 변경한 사진이 있다면 업데이트 구문에 입력
     if ($image !== null) {
 
-      $updateSql = "UPDATE users SET name = :name, email = :email, password = :password, img = :img WHERE unique_id = :uniqueId";
+      $updateSql = "UPDATE users SET name = :name, email = :email, password = :password, img = :img, updated_at = CURRENT_TIMESTAMP WHERE unique_id = :uniqueId";
       $updateResult = $this->connection()->prepare($updateSql);
       $updateResult->bindParam(':name', $name);
       $updateResult->bindParam(':email', $email);
@@ -791,7 +792,7 @@ class Database
 
         // 이름, 이메일, 패스워드 뭐 하나라도 바뀐게 있다면 UPDATE문 실행
       } else {
-        $updateSql = "UPDATE users SET name = :name, email = :email, password = :password WHERE unique_id = :uniqueId";
+        $updateSql = "UPDATE users SET name = :name, email = :email, password = :password, updated_at = CURRENT_TIMESTAMP WHERE unique_id = :uniqueId";
         $updateResult = $this->connection()->prepare($updateSql);
         $updateResult->bindParam(':name', $name);
         $updateResult->bindParam(':email', $email);
@@ -873,13 +874,15 @@ class Database
 
     $sql = "INSERT INTO users (name, img, unique_id, email, status, session_unique_id, type) VALUES (:name, :img, :unique_id, :email, :status, :session_unique_id, :type)";
 
+    $sessionUniqueIdEncode = base64_encode(serialize(array($profileUniqueId)));
+
     $result = $this->connection()->prepare($sql);
     $result->bindParam(':name', $profileName);
     $result->bindParam(':img', $profileImage);
     $result->bindParam(':unique_id', $profileUniqueId);
     $result->bindParam(':email', $profileEmail);
     $result->bindParam(':status', $status);
-    $result->bindParam(':session_unique_id', $profileUniqueId);
+    $result->bindParam(':session_unique_id', $sessionUniqueIdEncode);
     $result->bindParam(':type', $type);
     $result->execute();
 
@@ -896,18 +899,55 @@ class Database
   {
     $status = '접속';
 
+    $sql = "SELECT session_unique_id FROM users WHERE unique_id = :unique_id AND `type` = 'kakao' ";
+    $result = $this->connection()->prepare($sql);
+    $result->bindParam(':unique_id', $unique_id);
+    $result->execute();
+
+    $row = $result->fetch(PDO::FETCH_ASSOC);
+
+    if ($row['session_unique_id'] == '') {
+      $sessionUniqueIdEncode = base64_encode(serialize(array($unique_id)));
+
+      $sql = "UPDATE users SET status = :status, session_unique_id = :session_unique_id WHERE unique_id = :unique_id";
+      $result = $this->connection()->prepare($sql);
+      $result->bindParam(':status', $status);
+      $result->bindParam(':session_unique_id', $sessionUniqueIdEncode);
+      $result->bindParam(':unique_id', $unique_id);
+      $result->execute();
+    } else {
+      $sessionUniqueIdArray = unserialize(base64_decode($row['session_unique_id']));
+
+      if (count($sessionUniqueIdArray) == 3) {
+        echo "기존에 로그인한 기기가 3개를 초과했습니다.";
+        exit;
+      } else {
+        array_push($sessionUniqueIdArray, $unique_id);
+
+        $sessionUniqueIdEncode = base64_encode(serialize($sessionUniqueIdArray));
+
+        $sql = "UPDATE users SET status = :status, session_unique_id = :session_unique_id WHERE unique_id = :unique_id";
+        $result = $this->connection()->prepare($sql);
+        $result->bindParam(':status', $status);
+        $result->bindParam(':session_unique_id', $sessionUniqueIdEncode);
+        $result->bindParam(':unique_id', $unique_id);
+        $result->execute();
+      }
+    }
+
+
     // session_unique_id 컬럼에 데이터가 하나도 없다면
     // 곧바로 $unique_id 입력
     // 기존 값이 있다면 기존값에 추가
     // session_unique_id 값이 3개가 들어있다면 로그인 불가 처리
     // 코드 작성하기
 
-    $sql = "UPDATE users SET status = :status, session_unique_id = :session_unique_id WHERE unique_id = :unique_id";
-    $result = $this->connection()->prepare($sql);
-    $result->bindParam(':status', $status);
-    $result->bindParam(':session_unique_id', $unique_id);
-    $result->bindParam(':unique_id', $unique_id);
-    $result->execute();
+    // $friends = array("조상호", "김민재", "감성현");
+    // $friendsSerialize = base64_encode(serialize($friends));
+    // $name = unserialize(base64_decode($row['name']));
+
+
+
   }
 
   /**
