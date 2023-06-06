@@ -7,7 +7,7 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
   $userUniqueId = $row['unique_id'];
 
   $database = new Database();
-  $sql2 = "SELECT * FROM messages WHERE outgoing_msg_id = :unique_id ORDER BY msg_id DESC LIMIT 1";
+  $sql2 = "SELECT * FROM messages WHERE outgoing_msg_id = :unique_id ORDER BY id DESC LIMIT 1";
   $stmt2 = $database->connection()->prepare($sql2);
   $stmt2->bindParam(':unique_id', $userUniqueId);
   $stmt2->execute();
@@ -31,8 +31,8 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $offline = '';
   }
 
-  // 현재 로그인한 사용자와 대화 상대자와의 대화 갯수
-  $sql3 = "SELECT * FROM messages WHERE outgoing_msg_id = :outgoing_msg_id AND incoming_msg_id = :incoming_msg_id AND msg_read = 'no'";
+  // 현재 로그인한 사용자와 대화 상대와의 대화 갯수
+  $sql3 = "SELECT * FROM messages WHERE outgoing_msg_id = :outgoing_msg_id AND incoming_msg_id = :incoming_msg_id AND `read` = 'no' ";
   $stmt3 = $database->connection()->prepare($sql3);
   $stmt3->bindParam(':outgoing_msg_id', $userUniqueId);
   $stmt3->bindParam(':incoming_msg_id', $_SESSION['unique_id']);
