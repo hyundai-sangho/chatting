@@ -357,7 +357,7 @@ class Database
   {
     global $log;
 
-    $sql = "SELECT * FROM users WHERE email = :email AND 'type' ='email' ";
+    $sql = "SELECT * FROM users WHERE email = :email AND `type` ='email' ";
     $result = $this->connection()->prepare($sql);
     $result->bindParam(':email', $email);
     $result->execute();
@@ -383,7 +383,7 @@ class Database
         $randomIdEncode = base64_encode(serialize(array($randomId)));
 
         // 기본 이미지(회원가입 화면에서 프로필 이미지를 선택하지 않았다면 기본 이미지로 업로드)
-        $default_image = "/base/default.png";
+        $default_image = "https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small/default-avatar-profile-icon-of-social-media-user-vector.jpg";
 
         $sql2 = "INSERT INTO users (unique_id, name, email, password, img, status, session_unique_id, type ) VALUES (:unique_id, :name, :email, :password, :img, :status, :session_unique_id, :type)";
 
@@ -404,7 +404,7 @@ class Database
 
         // 회원정보 데이터를 입력하고 가입한 이메일로 다시 쿼리로 돌려보면서 제대로 디비에 들어갔는지 확인
         if ($insertRowCount > 0) {
-          $sql3 = "SELECT * FROM users WHERE email = :email";
+          $sql3 = "SELECT * FROM users WHERE email = :email AND `type` = 'email' ";
           $result3 = $this->connection()->prepare($sql3);
           $result3->bindParam(':email', $email);
           $result3->execute();
