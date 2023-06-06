@@ -2,9 +2,8 @@
 
 try {
 
-  // ![수정필요] 카카오 API 환경설정 파일
+  // ![수정 필요] 카카오 API 환경 설정 파일
   include_once "../config.php";
-
   include_once "../db/Database.php";
 
   // 기본 응답 설정
@@ -17,8 +16,8 @@ try {
 
   // code && state 체크
   if (empty($code) || empty($state) || $state != $cookieState) {
-    // throw new Exception("인증실패", (__LINE__ * -1));
-    echo new Exception("인증실패", (__LINE__ * -1));
+    // throw new Exception("인증 실패", (__LINE__ * -1));
+    echo new Exception("인증 실패", (__LINE__ * -1));
   }
 
   // 토큰 요청
@@ -66,10 +65,8 @@ try {
   // 프로필 이름, 사진, uniqueId, 이메일
   foreach ($profile_data as $key1 => $value1) {
     if ($key1 == "id") {
-      // setcookie('id', time() + 3600 * 24 * 30);
       // 카카오 id를 profileUniqueId 변수에 저장
       $profileUniqueId = intval($value1);
-
     } else if ($key1 == 'properties') {
       foreach ($value1 as $key2 => $value2) {
         if ($key2 == 'profile_image') {
@@ -97,39 +94,44 @@ try {
   // 세션 사용
   session_start();
 
-  // 기존 회원인지(true) / 비회원인지(false) db 체크
-  if ($kakaoEmailResult['type'] == 'kakao') {
-    $_SESSION['unique_id'] = $kakaoEmailResult['unique_id'];
-    $_SESSION['kakaoEmail'] = "yes";
+  if ($profileEmail) {
 
-    $db->kakaoLoginStatusUpdate($kakaoEmailResult['unique_id']);
-
-    // state 초기화
-    setcookie('state', '', time() - 3600, '/'); // 300 초동안 유효
-
-    header("Location: ../users.php");
-
-    // 카카오 소셜 로그인으로 들어온 사용자 정보가 디비에 없다면 사용자 정보 등록
-  } else {
-    $insertResult = $db->createKakaoUser($profileName, $profileImage, $profileUniqueId, $profileEmail);
-
-    if ($insertResult) {
-      // 최종 성공 처리
-      $res['rst'] = 'success';
-
-      $_SESSION['unique_id'] = $profileUniqueId;
+    // 카카오 소셜 로그인으로 들어온 사용자의 정보가 디비에 이미 존재한다면
+    if ($kakaoEmailResult) {
+      $_SESSION['unique_id'] = $kakaoEmailResult['unique_id'];
       $_SESSION['kakaoEmail'] = "yes";
 
+      $db->kakaoLoginStatusUpdate($_SESSION['unique_id']);
+
       // state 초기화
-      setcookie('state', '', time() - 300, '/'); // 300 초동안 유효
+      setcookie('state', '', time() - 300, '/'); // 300초 동안 유효
 
       header("Location: ../users.php");
+
+      // 카카오 소셜 로그인으로 들어온 사용자 정보가 디비에 없다면 사용자 정보 등록
+    } else {
+      $insertResult = $db->createKakaoUser($profileName, $profileImage, $profileUniqueId, $profileEmail);
+
+      if ($insertResult) {
+        // 최종 성공 처리
+        $res['rst'] = 'success';
+
+        $_SESSION['unique_id'] = $profileUniqueId;
+        $_SESSION['kakaoEmail'] = "yes";
+
+        // state 초기화
+        setcookie('state', '', time() - 300, '/'); // 300초 동안 유효
+
+        header("Location: ../users.php");
+      }
     }
   }
 } catch (Exception $e) {
+
   if (!empty($e->getMessage())) {
     echo $res['msg'] = $e->getMessage();
   }
+
   if (!empty($e->getMessage())) {
     echo $res['code'] = $e->getCode();
   }

@@ -39,7 +39,6 @@ if (!isset($_SESSION['unique_id'])) {
         // 디비 커넥션 끊기
         $database->connectionClose();
 
-
         ?>
 
 
@@ -48,7 +47,7 @@ if (!isset($_SESSION['unique_id'])) {
         </a>
       </header>
 
-      <div class=" search">
+      <div class="search">
         <span class="text">채팅을 시작할 사용자를 선택</span>
         <input type="text" placeholder="검색할 사람을 입력" />
         <button><i class="fas fa-search"></i></button>

@@ -11,6 +11,7 @@ $json_array = json_decode(file_get_contents('php://input'), true);
 $outgoingId = $json_array["outgoingId"];
 $incomingId = $json_array["incomingId"];
 
+
 // 디비 객체 생성
 $database = new Database();
 $database->getMessagesDataById($outgoingId, $incomingId);

@@ -125,6 +125,8 @@ elseif ($authCode !== $_SESSION['authCode']) {
 
 // 디비 객체 생성
 $database = new Database();
+
+echo $name . ' ' . $email . ' ' . $encryptedPassword . ' ' . $imageFile;
 $database->signUp($name, $email, $encryptedPassword, $imageFile);
 
 // 디비 커넥션 끊기

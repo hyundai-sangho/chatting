@@ -47,17 +47,17 @@ if (isset($_COOKIE['email'])) {
 }
 
 // 카카오 로그인 설정 =============================================================
-// ![수정필요] 카카오 API 환경설정 파일
+// ![수정 필요] 카카오 API 환경설정 파일
 include_once "../config.php";
 
-// 정보치환
+// 정보 치환
 $replace = array(
   '{client_id}' => $kakaoConfig['client_id'],
   '{redirect_uri}' => $kakaoConfig['redirect_uri'],
   '{state}' => md5(mt_rand(111111111, 999999999)),
 );
 
-setcookie('state', $replace['{state}'], time() + 300, '/'); // 300 초동안 유효
+setcookie('state', $replace['{state}'], time() + 300, '/'); // 300초 동안 유효
 
 $login_auth_url = str_replace(array_keys($replace), array_values($replace), $kakaoConfig['login_auth_url']);
 

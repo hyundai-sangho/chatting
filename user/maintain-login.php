@@ -22,7 +22,6 @@ $email = $json_array['loginEmail'] ?? null;
 $password = $json_array['loginPassword'] ?? null;
 
 
-
 /**
  * 비밀번호 암복호화 함수
  * $action 매개변수 값을 e를 넣으면 암호화, d를 넣으면 복호화, 기본값은 암호화
@@ -49,9 +48,6 @@ function password_crypt($string, $action = 'e') // $action 값은 기본값을 e
 
 // 비밀번호 암복호화 함수에 비밀번호를 넣어서 암호화한 뒤 리턴 값으로 받아서 $encryptedPassword 변수에 저장
 $encryptedPassword = password_crypt($password, 'e');
-
-
-
 
 $database = new Database();
 $result = $database->getUsersDataByEmailAndPassword($email, $encryptedPassword);
