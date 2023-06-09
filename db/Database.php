@@ -550,7 +550,7 @@ class Database
 
   public function getMessagesDataById($outgoingId, $incomingId)
   {
-    $sql = "SELECT * FROM messages m
+    $sql = "SELECT m.created_at, m.msg, m.image, m.outgoing_msg_id, m.id FROM messages m
             LEFT JOIN users u ON u.unique_id = m.outgoing_msg_id
             WHERE (outgoing_msg_id = :outgoingId AND incoming_msg_id = :incomingId) OR (outgoing_msg_id = :incomingId AND incoming_msg_id = :outgoingId) ORDER BY m.id";
 
@@ -581,7 +581,8 @@ class Database
         // 글 작성일과 오늘 날짜가 하루 이상 차이가 난다면 $diffDay 변수에 날짜 저장
         if ($diff->days >= 1) {
 
-          $selectMsgIdQuery = "SELECT id FROM `messages` WHERE ((outgoing_msg_id = $outgoingId AND incoming_msg_id = $incomingId) OR (outgoing_msg_id = $incomingId AND incoming_msg_id = $outgoingId)) AND DATE(created_at) = '$substringWriteDate' ORDER BY id DESC LIMIT 1";
+          $selectMsgIdQuery = "SELECT id FROM `messages` WHERE ((outgoing_msg_id = $outgoingId AND incoming_msg_id = $incomingId) OR
+          (outgoing_msg_id = $incomingId AND incoming_msg_id = $outgoingId)) AND DATE_FORMAT(created_at, '%Y-%m-%d') = DATE_FORMAT('$substringWriteDate', '%Y-%m-%d') ORDER BY id DESC LIMIT 1";
 
           $selectMsgIdQueryResult = $this->connection()->prepare($selectMsgIdQuery);
           $selectMsgIdQueryResult->execute();
